@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<!-- saved from url=(0074)https://8b462b80-a1e6-4fe9-9b04-011c1061415a-5000.dev.coze.site/admin.html -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script src="./admin_files/index.js.下载"></script><script src="./admin_files/index(1).js.下载"></script><script src="./admin_files/index.min.js.下载"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>本草堂 - 管理后台</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;padding:20px;line-height:1.6}
+.container{max-width:1200px;margin:0 auto}
+h1{color:#333;margin-bottom:20px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:30px}
+.stat-card{background:#fff;border-radius:8px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.stat-card h3{font-size:14px;color:#666;margin-bottom:8px}
+.stat-card .value{font-size:32px;font-weight:bold;color:#C84B31}
+.stat-card .sub{font-size:12px;color:#999;margin-top:4px}
+.section{background:#fff;border-radius:8px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.section h2{font-size:18px;margin-bottom:16px;color:#333;border-bottom:2px solid #C84B31;padding-bottom:8px}
+.mode-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.mode-card{background:#f9f9f9;border-radius:6px;padding:16px}
+.mode-card h4{font-size:14px;color:#666;margin-bottom:8px}
+.mode-card .stat{display:flex;justify-content:space-between;margin:4px 0;font-size:13px}
+.mode-card .stat span:last-child{font-weight:bold;color:#333}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px;text-align:left;border-bottom:1px solid #eee}
+th{background:#f9f9f9;font-weight:600;color:#666}
+tr:hover{background:#f9f9f9}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.badge-identify{background:#e3f2fd;color:#1976d2}
+.badge-formula{background:#f3e5f5;color:#7b1fa2}
+.badge-classify{background:#e8f5e9;color:#388e3c}
+.badge-prescribe{background:#fff3e0;color:#f57c00}
+.badge-match{background:#fce4ec;color:#c2185b}
+.refresh-btn{background:#C84B31;color:#fff;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;margin-bottom:20px}
+.refresh-btn:hover{background:#a33d27}
+.loading{text-align:center;padding:40px;color:#999}
+.error{color:#d32f2f;padding:20px;text-align:center}
+</style>
+<link rel="stylesheet" href="./admin_files/css"></head>
+<body>
+<div class="container">
+  <h1>本草堂 - 游戏数据统计</h1>
+  <button class="refresh-btn" onclick="loadStats()">刷新数据</button>
+  <div id="content"><div class="stats-grid"><div class="stat-card"><h3>总游戏次数</h3><div class="value">1</div></div><div class="stat-card"><h3>独立IP数</h3><div class="value">1</div></div><div class="stat-card"><h3>总得分</h3><div class="value">50</div></div><div class="stat-card"><h3>平均得分</h3><div class="value">50</div></div></div><div class="section"><h2>各模式统计</h2><div class="mode-stats"><div class="mode-card"><h4>辨药识材</h4><div class="stat"><span>游戏次数</span><span>1</span></div><div class="stat"><span>总得分</span><span>50</span></div><div class="stat"><span>平均得分</span><span>50</span></div><div class="stat"><span>最高得分</span><span>50</span></div></div><div class="mode-card"><h4>组方配伍</h4><div class="stat"><span>游戏次数</span><span>0</span></div><div class="stat"><span>总得分</span><span>0</span></div><div class="stat"><span>平均得分</span><span>0</span></div><div class="stat"><span>最高得分</span><span>0</span></div></div><div class="mode-card"><h4>四性五味</h4><div class="stat"><span>游戏次数</span><span>0</span></div><div class="stat"><span>总得分</span><span>0</span></div><div class="stat"><span>平均得分</span><span>0</span></div><div class="stat"><span>最高得分</span><span>0</span></div></div><div class="mode-card"><h4>对症开方</h4><div class="stat"><span>游戏次数</span><span>0</span></div><div class="stat"><span>总得分</span><span>0</span></div><div class="stat"><span>平均得分</span><span>0</span></div><div class="stat"><span>最高得分</span><span>0</span></div></div><div class="mode-card"><h4>药材连连看</h4><div class="stat"><span>游戏次数</span><span>0</span></div><div class="stat"><span>总得分</span><span>0</span></div><div class="stat"><span>平均得分</span><span>0</span></div><div class="stat"><span>最高得分</span><span>0</span></div></div></div></div><div class="section"><h2>最近游戏记录 (前50条)</h2><table><thead><tr><th>时间</th><th>IP</th><th>模式</th><th>得分</th><th>解锁药材</th><th>最大连击</th></tr></thead><tbody><tr><td>2026/9/1 08:14:09</td><td>115.190.192.22, 11.5.179.239</td><td><span class="badge badge-identify">辨药识材</span></td><td>50</td><td>5</td><td>3</td></tr></tbody></table></div></div>
+</div>
+<script>
+const API_URL='https://br-peppy-grue-dfccd1b7.supabase2.aidap-global.cn-beijing.volces.com/functions/v1/game-stats-api';
+const modeNames={identify:'辨药识材',formula:'组方配伍',classify:'四性五味',prescribe:'对症开方',match:'药材连连看'};
+
+async function loadStats(){
+  const content=document.getElementById('content');
+  content.innerHTML='<div class="loading">加载中...</div>';
+  try{
+    const res=await fetch(API_URL);
+    const json=await res.json();
+    if(!json.success)throw new Error(json.error||'加载失败');
+    renderStats(json.stats);
+  }catch(e){
+    content.innerHTML='<div class="error">加载失败: '+e.message+'</div>';
+  }
+}
+
+function renderStats(stats){
+  const content=document.getElementById('content');
+  let html='';
+  
+  // Overview stats
+  html+='<div class="stats-grid">';
+  html+='<div class="stat-card"><h3>总游戏次数</h3><div class="value">'+stats.total_records+'</div></div>';
+  html+='<div class="stat-card"><h3>独立IP数</h3><div class="value">'+stats.unique_ips+'</div></div>';
+  html+='<div class="stat-card"><h3>总得分</h3><div class="value">'+stats.total_score+'</div></div>';
+  html+='<div class="stat-card"><h3>平均得分</h3><div class="value">'+(stats.total_records>0?Math.round(stats.total_score/stats.total_records):0)+'</div></div>';
+  html+='</div>';
+  
+  // Mode stats
+  html+='<div class="section"><h2>各模式统计</h2><div class="mode-stats">';
+  for(const mode in stats.by_mode){
+    const m=stats.by_mode[mode];
+    html+='<div class="mode-card">';
+    html+='<h4>'+modeNames[mode]+'</h4>';
+    html+='<div class="stat"><span>游戏次数</span><span>'+m.count+'</span></div>';
+    html+='<div class="stat"><span>总得分</span><span>'+m.total_score+'</span></div>';
+    html+='<div class="stat"><span>平均得分</span><span>'+m.avg_score+'</span></div>';
+    html+='<div class="stat"><span>最高得分</span><span>'+m.max_score+'</span></div>';
+    html+='</div>';
+  }
+  html+='</div></div>';
+  
+  // Recent records
+  html+='<div class="section"><h2>最近游戏记录 (前50条)</h2>';
+  if(stats.recent.length===0){
+    html+='<p style="color:#999;text-align:center;padding:20px">暂无数据</p>';
+  }else{
+    html+='<table><thead><tr><th>时间</th><th>IP</th><th>模式</th><th>得分</th><th>解锁药材</th><th>最大连击</th></tr></thead><tbody>';
+    stats.recent.forEach(r=>{
+      const time=new Date(r.created_at).toLocaleString('zh-CN');
+      html+='<tr>';
+      html+='<td>'+time+'</td>';
+      html+='<td>'+r.ip_address+'</td>';
+      html+='<td><span class="badge badge-'+r.game_mode+'">'+modeNames[r.game_mode]+'</span></td>';
+      html+='<td>'+r.score+'</td>';
+      html+='<td>'+r.unlocked_count+'</td>';
+      html+='<td>'+r.combo_max+'</td>';
+      html+='</tr>';
+    });
+    html+='</tbody></table>';
+  }
+  html+='</div>';
+  
+  content.innerHTML=html;
+}
+
+loadStats();
+</script>
+
+
+<div id="html-editor-renderer-root" style="position: fixed; top: 0px; left: 0px;"></div></body></html>
