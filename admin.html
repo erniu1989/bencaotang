@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0074)https://8b462b80-a1e6-4fe9-9b04-011c1061415a-5000.dev.coze.site/admin.html -->
-<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script src="./admin_files/index.js.下载"></script><script src="./admin_files/index(1).js.下载"></script><script src="./admin_files/index.min.js.下载"></script>
-
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>本草堂 - 管理后台</title>
 <style>
@@ -36,12 +36,12 @@ tr:hover{background:#f9f9f9}
 .loading{text-align:center;padding:40px;color:#999}
 .error{color:#d32f2f;padding:20px;text-align:center}
 </style>
-<link rel="stylesheet" href="./admin_files/css"></head>
+</head>
 <body>
 <div class="container">
   <h1>本草堂 - 游戏数据统计</h1>
   <button class="refresh-btn" onclick="loadStats()">刷新数据</button>
-  <div id="content"><div class="stats-grid"><div class="stat-card"><h3>总游戏次数</h3><div class="value">1</div></div><div class="stat-card"><h3>独立IP数</h3><div class="value">1</div></div><div class="stat-card"><h3>总得分</h3><div class="value">50</div></div><div class="stat-card"><h3>平均得分</h3><div class="value">50</div></div></div><div class="section"><h2>各模式统计</h2><div class="mode-stats"><div class="mode-card"><h4>辨药识材</h4><div class="stat"><span>游戏次数</span><span>1</span></div><div class="stat"><span>总得分</span><span>50</span></div><div class="stat"><span>平均得分</span><span>50</span></div><div class="stat"><span>最高得分</span><span>50</span></div></div><div class="mode-card"><h4>组方配伍</h4><div class="stat"><span>游戏次数</span><span>0</span></div><div class="stat"><span>总得分</span><span>0</span></div><div class="stat"><span>平均得分</span><span>0</span></div><div class="stat"><span>最高得分</span><span>0</span></div></div><div class="mode-card"><h4>四性五味</h4><div class="stat"><span>游戏次数</span><span>0</span></div><div class="stat"><span>总得分</span><span>0</span></div><div class="stat"><span>平均得分</span><span>0</span></div><div class="stat"><span>最高得分</span><span>0</span></div></div><div class="mode-card"><h4>对症开方</h4><div class="stat"><span>游戏次数</span><span>0</span></div><div class="stat"><span>总得分</span><span>0</span></div><div class="stat"><span>平均得分</span><span>0</span></div><div class="stat"><span>最高得分</span><span>0</span></div></div><div class="mode-card"><h4>药材连连看</h4><div class="stat"><span>游戏次数</span><span>0</span></div><div class="stat"><span>总得分</span><span>0</span></div><div class="stat"><span>平均得分</span><span>0</span></div><div class="stat"><span>最高得分</span><span>0</span></div></div></div></div><div class="section"><h2>最近游戏记录 (前50条)</h2><table><thead><tr><th>时间</th><th>IP</th><th>模式</th><th>得分</th><th>解锁药材</th><th>最大连击</th></tr></thead><tbody><tr><td>2026/9/1 08:14:09</td><td>115.190.192.22, 11.5.179.239</td><td><span class="badge badge-identify">辨药识材</span></td><td>50</td><td>5</td><td>3</td></tr></tbody></table></div></div>
+  <div id="content"><div class="loading">加载中...</div></div>
 </div>
 <script>
 const API_URL='https://br-peppy-grue-dfccd1b7.supabase2.aidap-global.cn-beijing.volces.com/functions/v1/game-stats-api';
@@ -112,6 +112,5 @@ function renderStats(stats){
 
 loadStats();
 </script>
-
-
-<div id="html-editor-renderer-root" style="position: fixed; top: 0px; left: 0px;"></div></body></html>
+</body>
+</html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0064)https://8b462b80-a1e6-4fe9-9b04-011c1061415a-5000.dev.coze.site/ -->
-<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script src="./index_files/index.js.下载"></script><script src="./index_files/index(1).js.下载"></script><script src="./index_files/index.min.js.下载"></script>
-
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="description" content="本草堂 - 中药益智休闲小游戏">
 <title>本草堂</title>
@@ -167,7 +167,7 @@ button.small{padding:4px 14px;font-size:0.85rem}
 ::-webkit-scrollbar-track{background:var(--paper-dark)}
 ::-webkit-scrollbar-thumb{background:var(--ink-faint);border-radius:3px}
 </style>
-<link rel="stylesheet" href="./index_files/css"></head>
+</head>
 <body>
 <div id="app">
   <div id="screen-home" class="screen active">
@@ -177,40 +177,40 @@ button.small{padding:4px 14px;font-size:0.85rem}
       <p>辨药识性 · 组方济世 · 博学成才</p>
     </div>
     <div class="mode-grid">
-      <div class="mode-card" onclick="App.startGame(&#39;identify&#39;)">
-        <span class="mode-icon">🌿</span>
+      <div class="mode-card" onclick="App.startGame('identify')">
+        <span class="mode-icon">&#x1F33F;</span>
         <div class="mode-name">辨药识材</div>
         <div class="mode-desc">根据线索猜出药材</div>
       </div>
-      <div class="mode-card" onclick="App.startGame(&#39;formula&#39;)">
-        <span class="mode-icon">📜</span>
+      <div class="mode-card" onclick="App.startGame('formula')">
+        <span class="mode-icon">&#x1F4DC;</span>
         <div class="mode-name">组方配伍</div>
         <div class="mode-desc">选出方剂全部组成</div>
       </div>
-      <div class="mode-card" onclick="App.startGame(&#39;classify&#39;)">
-        <span class="mode-icon">⚖</span>
+      <div class="mode-card" onclick="App.startGame('classify')">
+        <span class="mode-icon">&#x2696;</span>
         <div class="mode-name">四性五味</div>
         <div class="mode-desc">快速分类药材性味</div>
       </div>
-      <div class="mode-card" onclick="App.startGame(&#39;prescribe&#39;)">
-        <span class="mode-icon">🩺</span>
+      <div class="mode-card" onclick="App.startGame('prescribe')">
+        <span class="mode-icon">&#x1FA7A;</span>
         <div class="mode-name">对症开方</div>
         <div class="mode-desc">辨证论治选方剂</div>
       </div>
-      <div class="mode-card" onclick="App.startGame(&#39;match&#39;)">
-        <span class="mode-icon">🔗</span>
+      <div class="mode-card" onclick="App.startGame('match')">
+        <span class="mode-icon">&#x1F517;</span>
         <div class="mode-name">药材连连看</div>
         <div class="mode-desc">配对药材与功效</div>
       </div>
-      <div class="mode-card" onclick="App.showScreen(&#39;encyclopedia&#39;)">
-        <span class="mode-icon">📖</span>
+      <div class="mode-card" onclick="App.showScreen('encyclopedia')">
+        <span class="mode-icon">&#x1F4D6;</span>
         <div class="mode-name">百草图鉴</div>
         <div class="mode-desc">收集与查阅药材</div>
       </div>
     </div>
     <div class="home-nav">
-      <button onclick="App.showScreen(&#39;leaderboard&#39;)">🏆 排行榜</button>
-      <button onclick="App.resetProgress()">🔄 重置进度</button>
+      <button onclick="App.showScreen('leaderboard')">&#x1F3C6; 排行榜</button>
+      <button onclick="App.resetProgress()">&#x1F504; 重置进度</button>
     </div>
     <div style="text-align:center;padding:8px;color:var(--ink-faint);font-size:0.8rem">
       医道积分：<span id="home-score" style="color:var(--gold);font-family:var(--font-num)">0</span>
@@ -218,9 +218,9 @@ button.small{padding:4px 14px;font-size:0.85rem}
   </div>
   <div id="screen-game" class="screen">
     <div class="header">
-      <button class="back-btn" onclick="App.showScreen(&#39;home&#39;)">← 返回</button>
+      <button class="back-btn" onclick="App.showScreen('home')">&#x2190; 返回</button>
       <h1 id="game-title">游戏</h1>
-      <div class="score-display">⭐ <span id="game-score">0</span></div>
+      <div class="score-display">&#x2B50; <span id="game-score">0</span></div>
     </div>
     <div class="game-header">
       <span class="progress" id="game-progress"></span>
@@ -231,9 +231,9 @@ button.small{padding:4px 14px;font-size:0.85rem}
   </div>
   <div id="screen-encyclopedia" class="screen">
     <div class="header">
-      <button class="back-btn" onclick="App.showScreen(&#39;home&#39;)">← 返回</button>
+      <button class="back-btn" onclick="App.showScreen('home')">&#x2190; 返回</button>
       <h1>百草图鉴</h1>
-      <div class="score-display">⭐ <span id="ency-score">0</span></div>
+      <div class="score-display">&#x2B50; <span id="ency-score">0</span></div>
     </div>
     <div class="ency-progress">
       <span class="count" id="ency-count">0/0</span>
@@ -244,14 +244,13 @@ button.small{padding:4px 14px;font-size:0.85rem}
   </div>
   <div id="screen-leaderboard" class="screen">
     <div class="header">
-      <button class="back-btn" onclick="App.showScreen(&#39;home&#39;)">← 返回</button>
+      <button class="back-btn" onclick="App.showScreen('home')">&#x2190; 返回</button>
       <h1>排行榜</h1>
       <div></div>
     </div>
     <div id="lb-content"></div>
   </div>
 </div>
-<script src="./index_files/game.js.下载"></script>
-
-
-<div id="html-editor-renderer-root" style="position: fixed; top: 0px; left: 0px;"></div></body></html>
+<script src="game.js"></script>
+</body>
+</html>
