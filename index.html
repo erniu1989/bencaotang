@@ -522,3 +522,698 @@ h1,h2,h3,h4{
   flex-wrap:wrap;
   gap:8px;
   margin:14px 0;
+}
+
+.herb-chip{
+  padding:7px 13px;
+  border:1.5px solid var(--paper-deep);
+  border-radius:20px;
+  background:var(--white);
+  cursor:pointer;
+  font-size:.88rem;
+  transition:.2s;
+}
+
+.herb-chip:hover{
+  border-color:var(--ink);
+}
+
+.herb-chip.selected{
+  color:#fff;
+  border-color:var(--ink);
+  background:var(--ink);
+}
+
+.herb-chip.correct-pick{
+  color:var(--green);
+  border-color:var(--green);
+  background:var(--green-light);
+}
+
+.herb-chip.wrong-pick{
+  color:var(--error);
+  border-color:var(--error);
+  background:#F4E3DF;
+}
+
+.herb-chip.missed{
+  color:#745E1B;
+  border-color:var(--gold);
+  background:#F6EDCF;
+}
+
+.formula-slots{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  min-height:50px;
+  margin:12px 0;
+  padding:11px;
+  border:1px dashed var(--ink-faint);
+  border-radius:var(--radius);
+  background:var(--paper-dark);
+}
+
+.formula-slots.empty::before{
+  content:"尚未选择药材";
+  color:var(--ink-faint);
+  font-size:.84rem;
+}
+
+.current-herb-display{
+  margin:15px 0;
+  padding:22px;
+  border:1px solid var(--paper-deep);
+  border-radius:var(--radius);
+  background:var(--paper-dark);
+  font-family:var(--font-title);
+  font-size:1.7rem;
+  letter-spacing:.08em;
+  text-align:center;
+}
+
+.classify-note{
+  margin-bottom:10px;
+  color:var(--ink-light);
+  font-size:.82rem;
+  text-align:center;
+}
+
+.classify-lanes{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+}
+
+.classify-lane{
+  min-height:90px;
+  padding:16px 8px;
+  border:2px dashed var(--ink-faint);
+  border-radius:var(--radius);
+  background:rgba(255,253,248,.55);
+  cursor:pointer;
+  font-family:var(--font-title);
+  text-align:center;
+  transition:.2s;
+}
+
+.classify-lane:hover{
+  border-color:var(--ink);
+  background:var(--paper-dark);
+}
+
+.classify-lane.correct{
+  color:var(--green);
+  border-color:var(--green);
+  background:var(--green-light);
+}
+
+.classify-lane.wrong{
+  color:var(--error);
+  border-color:var(--error);
+  background:#F4E3DF;
+}
+
+.symptom-card{
+  margin:15px 0;
+  padding:19px;
+  border-left:4px solid var(--blue);
+  border-radius:var(--radius);
+  background:var(--paper-dark);
+}
+
+.patient{
+  margin-bottom:7px;
+  color:var(--blue);
+  font-family:var(--font-title);
+}
+
+.symptoms{
+  font-size:.94rem;
+  line-height:1.9;
+}
+
+.match-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
+  margin:15px 0;
+}
+
+.match-cell{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:88px;
+  padding:7px;
+  border:1.5px solid var(--paper-deep);
+  border-radius:var(--radius);
+  background:var(--white);
+  cursor:pointer;
+  font-size:.78rem;
+  line-height:1.35;
+  text-align:center;
+  word-break:break-word;
+  transition:.2s;
+}
+
+.match-cell:hover{
+  border-color:var(--ink);
+}
+
+.match-cell.selected{
+  color:#fff;
+  border-color:var(--ink);
+  background:var(--ink);
+}
+
+.match-cell.matched{
+  color:var(--green);
+  border-color:var(--green);
+  background:var(--green-light);
+  pointer-events:none;
+}
+
+.match-cell.wrong{
+  color:var(--error);
+  border-color:var(--error);
+  background:#F4E3DF;
+  animation:shake .35s ease;
+}
+
+.match-cell.locked{
+  pointer-events:none;
+}
+
+.combo-float{
+  position:fixed;
+  z-index:300;
+  pointer-events:none;
+  color:var(--gold);
+  font-family:var(--font-num);
+  font-size:1.45rem;
+  font-weight:bold;
+  animation:comboFloat .8s forwards;
+}
+
+.result-overlay{
+  position:fixed;
+  inset:0;
+  z-index:500;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:16px;
+  background:rgba(34,34,31,.6);
+}
+
+.result-card{
+  width:100%;
+  max-width:460px;
+  max-height:90vh;
+  overflow-y:auto;
+  padding:28px;
+  border:2px solid var(--paper-deep);
+  border-radius:14px;
+  background:var(--paper);
+  box-shadow:0 15px 45px rgba(0,0,0,.25);
+  text-align:center;
+  animation:popIn .3s ease;
+}
+
+.result-card h2{
+  margin-bottom:8px;
+  font-size:1.6rem;
+}
+
+.score-big{
+  margin:8px 0 14px;
+  color:var(--gold);
+  font-family:var(--font-num);
+  font-size:2.5rem;
+}
+
+.result-level{
+  margin-bottom:15px;
+  color:var(--vermilion);
+  font-family:var(--font-title);
+  font-size:1.15rem;
+}
+
+.result-stats{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+  margin:15px 0;
+}
+
+.result-stat{
+  padding:10px;
+  border-radius:8px;
+  background:var(--paper-dark);
+}
+
+.result-stat span{
+  display:block;
+  color:var(--ink-light);
+  font-size:.76rem;
+}
+
+.result-stat strong{
+  color:var(--ink);
+  font-family:var(--font-num);
+  font-size:1.15rem;
+}
+
+.btn-group{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:9px;
+  margin-top:18px;
+}
+
+.ency-progress{
+  margin-bottom:16px;
+  padding:14px;
+  border-radius:var(--radius);
+  background:var(--paper-dark);
+  text-align:center;
+}
+
+.ency-progress .count{
+  color:var(--gold);
+  font-family:var(--font-num);
+  font-size:1.7rem;
+}
+
+.category-filter{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin:12px 0;
+}
+
+.category-filter button{
+  min-height:34px;
+  padding:4px 10px;
+  font-size:.78rem;
+}
+
+.category-filter button.active{
+  color:#fff;
+  background:var(--ink);
+}
+
+.ency-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
+  gap:11px;
+}
+
+.ency-card{
+  padding:15px;
+  border:1.5px solid var(--paper-deep);
+  border-radius:var(--radius);
+  background:var(--white);
+  cursor:pointer;
+  text-align:center;
+  transition:.2s;
+}
+
+.ency-card:hover{
+  border-color:var(--green);
+  transform:translateY(-2px);
+}
+
+.ency-card.locked{
+  cursor:default;
+  filter:grayscale(1);
+  opacity:.45;
+}
+
+.herb-emoji{
+  display:block;
+  margin-bottom:5px;
+  font-size:2rem;
+}
+
+.herb-name{
+  font-family:var(--font-title);
+  font-size:1.05rem;
+}
+
+.herb-cat{
+  color:var(--ink-light);
+  font-size:.73rem;
+}
+
+.card{
+  padding:20px;
+  border:1px solid var(--paper-deep);
+  border-radius:var(--radius);
+  background:var(--white);
+  box-shadow:var(--shadow);
+}
+
+.ency-detail{
+  margin:15px 0;
+}
+
+.detail-section{
+  margin:13px 0;
+}
+
+.detail-section h4{
+  margin-bottom:3px;
+  color:var(--vermilion);
+}
+
+.detail-section p{
+  color:var(--ink-light);
+  font-size:.9rem;
+}
+
+.badge{
+  display:inline-block;
+  margin:2px;
+  padding:2px 9px;
+  border-radius:4px;
+  font-size:.73rem;
+}
+
+.badge-cold{
+  color:var(--blue);
+  background:rgba(88,121,151,.14);
+}
+
+.badge-warm{
+  color:var(--orange);
+  background:rgba(197,125,67,.14);
+}
+
+.badge-hot{
+  color:var(--vermilion);
+  background:rgba(185,74,53,.14);
+}
+
+.badge-neutral{
+  color:var(--ink-light);
+  background:rgba(103,106,100,.12);
+}
+
+.badge-green{
+  color:var(--green);
+  background:var(--green-light);
+}
+
+.lb-list{
+  margin-top:12px;
+}
+
+.lb-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:13px 15px;
+  border-bottom:1px solid var(--paper-deep);
+}
+
+.lb-score{
+  color:var(--gold);
+  font-family:var(--font-num);
+}
+
+.wrongbook-empty{
+  padding:40px 15px;
+  color:var(--ink-light);
+  text-align:center;
+}
+
+.wrong-item{
+  margin-bottom:12px;
+  padding:16px;
+  border:1px solid var(--paper-deep);
+  border-radius:var(--radius);
+  background:var(--white);
+}
+
+.wrong-item h3{
+  margin-bottom:6px;
+  color:var(--vermilion);
+  font-size:1.08rem;
+}
+
+.wrong-meta{
+  margin-bottom:8px;
+  color:var(--ink-faint);
+  font-size:.75rem;
+}
+
+.wrong-item p{
+  margin:4px 0;
+  color:var(--ink-light);
+  font-size:.86rem;
+}
+
+.wrong-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:10px;
+}
+
+.section-title{
+  margin:16px 0 10px;
+  padding-bottom:7px;
+  border-bottom:1px solid var(--paper-deep);
+  font-size:1.15rem;
+}
+
+@media(max-width:620px){
+  #app{
+    padding:10px;
+  }
+
+  .home-title{
+    padding-top:24px;
+  }
+
+  .home-title h1{
+    font-size:2.25rem;
+  }
+
+  .mode-grid{
+    gap:9px;
+  }
+
+  .mode-card{
+    min-height:135px;
+    padding:17px 8px;
+  }
+
+  .mode-icon{
+    font-size:1.8rem;
+  }
+
+  .mode-name{
+    font-size:1rem;
+  }
+
+  .options-grid{
+    grid-template-columns:1fr;
+  }
+
+  .match-grid{
+    gap:5px;
+  }
+
+  .match-cell{
+    min-height:76px;
+    padding:4px;
+    font-size:.67rem;
+  }
+
+  .header h1{
+    font-size:1.2rem;
+  }
+
+  .header button{
+    padding:4px 9px;
+    font-size:.8rem;
+  }
+}
+
+@media(max-width:390px){
+  .mode-grid{
+    grid-template-columns:1fr;
+  }
+
+  .mode-card{
+    min-height:auto;
+  }
+
+  .match-grid{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .classify-lanes{
+    grid-template-columns:1fr;
+  }
+
+  .home-profile{
+    gap:12px;
+  }
+}
+</style>
+</head>
+
+<body>
+<div id="app">
+
+  <!-- 首页 -->
+  <section id="screen-home" class="screen active">
+    <div class="home-title">
+      <h1>本 草 堂</h1>
+      <div class="subtitle-line"></div>
+      <p>辨药识性 · 组方知理 · 品味本草</p>
+    </div>
+
+    <div class="home-intro">
+      以趣味互动传播本草知识，感受中医药文化魅力。
+      在辨药、组方、分类和配对中逐步解锁百草图鉴。
+    </div>
+
+    <div class="home-profile">
+      <div class="profile-item">
+        <div class="profile-label">当前称号</div>
+        <div class="profile-value" id="home-title-name">初入杏林</div>
+      </div>
+
+      <div class="profile-item">
+        <div class="profile-label">医道积分</div>
+        <div class="profile-value" id="home-score">0</div>
+      </div>
+
+      <div class="profile-item">
+        <div class="profile-label">已收集药材</div>
+        <div class="profile-value" id="home-unlocked">0/65</div>
+      </div>
+    </div>
+
+    <div class="mode-grid">
+      <div class="mode-card" onclick="App.startGame('identify')">
+        <span class="mode-icon">🌿</span>
+        <div class="mode-name">辨药识材</div>
+        <div class="mode-desc">根据性味、功效等线索辨认药材</div>
+      </div>
+
+      <div class="mode-card" onclick="App.startGame('formula')">
+        <span class="mode-icon">📜</span>
+        <div class="mode-name">组方配伍</div>
+        <div class="mode-desc">从药材池中选出经典方剂组成</div>
+      </div>
+
+      <div class="mode-card" onclick="App.startGame('classify')">
+        <span class="mode-icon">⚖️</span>
+        <div class="mode-name">四性五味</div>
+        <div class="mode-desc">判断中药的药性与药味</div>
+      </div>
+
+      <div class="mode-card" onclick="App.startGame('prescribe')">
+        <span class="mode-icon">🩺</span>
+        <div class="mode-name">对症开方</div>
+        <div class="mode-desc">根据模拟情境选择经典方剂</div>
+      </div>
+
+      <div class="mode-card" onclick="App.startGame('match')">
+        <span class="mode-icon">🔗</span>
+        <div class="mode-name">药材连连看</div>
+        <div class="mode-desc">配对药材名称与代表性功效</div>
+      </div>
+
+      <div class="mode-card" onclick="App.showScreen('encyclopedia')">
+        <span class="mode-icon">📖</span>
+        <div class="mode-name">百草图鉴</div>
+        <div class="mode-desc">查阅已经解锁的本草知识</div>
+      </div>
+    </div>
+
+    <div class="home-nav">
+      <button onclick="App.showScreen('wrongbook')">📕 错题复习</button>
+      <button onclick="App.showScreen('leaderboard')">🏆 我的成绩</button>
+      <button onclick="App.toggleSound()" id="sound-button">🔊 音效开启</button>
+      <button class="danger" onclick="App.resetProgress()">重置进度</button>
+    </div>
+
+    <div class="notice">
+      本游戏内容仅用于中医药文化与知识科普，
+      不作为疾病诊断、处方开具或公众自行用药的依据。
+    </div>
+  </section>
+
+  <!-- 游戏页 -->
+  <section id="screen-game" class="screen">
+    <div class="header">
+      <button onclick="App.leaveGame()">← 返回</button>
+      <h1 id="game-title">游戏</h1>
+      <div class="score-display">⭐ <span id="game-score">0</span></div>
+    </div>
+
+    <div class="game-header">
+      <span class="progress" id="game-progress"></span>
+      <span class="timer" id="game-timer"></span>
+      <span class="combo" id="game-combo"></span>
+    </div>
+
+    <div class="timer-bar">
+      <div class="timer-bar-inner" id="timer-bar-inner"></div>
+    </div>
+
+    <div id="game-content"></div>
+  </section>
+
+  <!-- 百草图鉴 -->
+  <section id="screen-encyclopedia" class="screen">
+    <div class="header">
+      <button onclick="App.showScreen('home')">← 返回</button>
+      <h1>百草图鉴</h1>
+      <div class="score-display">⭐ <span id="ency-score">0</span></div>
+    </div>
+
+    <div class="ency-progress">
+      <span class="count" id="ency-count">0/65</span>
+      <p>已收集药材</p>
+    </div>
+
+    <div class="category-filter" id="ency-filter"></div>
+    <div id="ency-content"></div>
+  </section>
+
+  <!-- 错题本 -->
+  <section id="screen-wrongbook" class="screen">
+    <div class="header">
+      <button onclick="App.showScreen('home')">← 返回</button>
+      <h1>错题复习</h1>
+      <div class="header-placeholder"></div>
+    </div>
+
+    <div id="wrongbook-content"></div>
+  </section>
+
+  <!-- 成绩页 -->
+  <section id="screen-leaderboard" class="screen">
+    <div class="header">
+      <button onclick="App.showScreen('home')">← 返回</button>
+      <h1>我的成绩</h1>
+      <div class="header-placeholder"></div>
+    </div>
+
+    <div id="lb-content"></div>
+  </section>
+
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
