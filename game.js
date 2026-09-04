@@ -108,662 +108,2549 @@ const SYMPTOMS=[
 ];
 
 // ===== UTILITY FUNCTIONS =====
-const Utils={
-  shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;},
-  pick(arr,n){return Utils.shuffle(arr).slice(0,n);},
-  pickOne(arr){return arr[Math.floor(Math.random()*arr.length)];},
-  $(id){return document.getElementById(id);},
-  getHerb(name){return HERBS.find(h=>h.name===name);},
-  getFormula(name){return FORMULAS.find(f=>f.name===name);},
-  natureBadge(n){
-    if(n.includes('寒'))return '<span class="badge badge-cold">'+n+'</span>';
-    if(n.includes('凉'))return '<span class="badge badge-cold">'+n+'</span>';
-    if(n.includes('温'))return '<span class="badge badge-warm">'+n+'</span>';
-    if(n.includes('热'))return '<span class="badge badge-hot">'+n+'</span>';
-    return '<span class="badge badge-neutral">'+n+'</span>';
+
+const GAME_CONFIG = {
+  questionTime: 60,
+  matchTime: 180,
+  identifyTotal: 10,
+  formulaTotal: 8,
+  classifyNatureTotal: 10,
+  classifyFlavorTotal: 10,
+  prescribeTotal: 10
+};
+
+// 修正个别原始资料中的表述
+(function correctOriginalData() {
+  const herb22 = HERBS.find(h => h.id === 22);
+  if (herb22) {
+    herb22.fun =
+      "板蓝根广为人知，但中医用药强调辨证，并非所有感冒都适用。";
+  }
+
+  const herb53 = HERBS.find(h => h.id === 53);
+  if (herb53) {
+    herb53.fun =
+      "藿香常用于暑湿、湿阻中焦等相关证候，具体应用应注意辨证。";
+  }
+
+  const herb59 = HERBS.find(h => h.id === 59);
+  if (herb59) {
+    herb59.fun =
+      "山茱萸果实成熟后色红，具有补益肝肾、收涩固脱等功效。";
+  }
+
+  const scenario12 = SYMPTOMS.find(item => item.id === 12);
+  if (scenario12) {
+    scenario12.patient = "马女士，30岁";
+  }
+})();
+
+// ============================================================
+// 通用工具
+// ============================================================
+
+const Utils = {
+  shuffle(array) {
+    const result = [...array];
+
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+
+    return result;
   },
-  natureCat(n){
-    if(n.includes('寒'))return '寒';
-    if(n.includes('凉'))return '凉';
-    if(n.includes('温')||n.includes('热'))return '温';
-    return '平';
+
+  pick(array, count) {
+    return this.shuffle(array).slice(0, count);
   },
-  flavorCat(f){
-    const fs=['酸','苦','甘','辛','咸'];
-    for(const x of fs){if(f.includes(x))return x;}
-    return '甘';
+
+  $(id) {
+    return document.getElementById(id);
   },
-  playSound(type){
-    try{
-      const ctx=new(window.AudioContext||window.webkitAudioContext)();
-      const osc=ctx.createOscillator();
-      const gain=ctx.createGain();
-      osc.connect(gain);gain.connect(ctx.destination);
-      if(type==='correct'){
-        osc.frequency.setValueAtTime(523,ctx.currentTime);
-        osc.frequency.setValueAtTime(659,ctx.currentTime+0.1);
-        osc.frequency.setValueAtTime(784,ctx.currentTime+0.2);
-        gain.gain.setValueAtTime(0.15,ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.4);
-        osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.4);
-      }else if(type==='wrong'){
-        osc.frequency.setValueAtTime(200,ctx.currentTime);
-        osc.frequency.setValueAtTime(150,ctx.currentTime+0.15);
-        gain.gain.setValueAtTime(0.15,ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.3);
-        osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.3);
-      }else if(type==='combo'){
-        osc.frequency.setValueAtTime(784,ctx.currentTime);
-        osc.frequency.setValueAtTime(988,ctx.currentTime+0.08);
-        osc.frequency.setValueAtTime(1175,ctx.currentTime+0.16);
-        gain.gain.setValueAtTime(0.12,ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.35);
-        osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.35);
-      }else if(type==='click'){
-        osc.frequency.setValueAtTime(440,ctx.currentTime);
-        gain.gain.setValueAtTime(0.08,ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.1);
-        osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.1);
-      }else if(type==='unlock'){
-        osc.type='sine';
-        osc.frequency.setValueAtTime(440,ctx.currentTime);
-        osc.frequency.setValueAtTime(554,ctx.currentTime+0.1);
-        osc.frequency.setValueAtTime(659,ctx.currentTime+0.2);
-        osc.frequency.setValueAtTime(880,ctx.currentTime+0.3);
-        gain.gain.setValueAtTime(0.12,ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.5);
-        osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.5);
+
+  escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  },
+
+  getHerb(value) {
+    if (typeof value === "number") {
+      return HERBS.find(h => h.id === value);
+    }
+
+    return HERBS.find(h => h.name === value);
+  },
+
+  getFormula(name) {
+    return FORMULAS.find(f => f.name === name);
+  },
+
+  getNatureCategory(nature) {
+    if (nature.includes("寒") || nature.includes("凉")) {
+      return "寒凉";
+    }
+
+    if (nature.includes("温") || nature.includes("热")) {
+      return "温热";
+    }
+
+    return "平性";
+  },
+
+  getFlavors(flavor) {
+    return ["酸", "苦", "甘", "辛", "咸"]
+      .filter(item => flavor.includes(item));
+  },
+
+  natureBadge(nature) {
+    let className = "badge-neutral";
+
+    if (nature.includes("寒") || nature.includes("凉")) {
+      className = "badge-cold";
+    } else if (nature.includes("热")) {
+      className = "badge-hot";
+    } else if (nature.includes("温")) {
+      className = "badge-warm";
+    }
+
+    return (
+      '<span class="badge ' +
+      className +
+      '">' +
+      this.escapeHtml(nature) +
+      "</span>"
+    );
+  },
+
+  showComboFloat(combo) {
+    const element = document.createElement("div");
+
+    element.className = "combo-float";
+    element.textContent = combo + " 连击";
+    element.style.left = Math.max(10, window.innerWidth / 2 - 45) + "px";
+    element.style.top = window.innerHeight / 2 + "px";
+
+    document.body.appendChild(element);
+
+    setTimeout(() => element.remove(), 800);
+  },
+
+  playSound(type) {
+    if (!State.soundEnabled) return;
+
+    try {
+      if (!this.audioContext) {
+        this.audioContext = new (
+          window.AudioContext || window.webkitAudioContext
+        )();
       }
-    }catch(e){}
+
+      const context = this.audioContext;
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+
+      const now = context.currentTime;
+
+      if (type === "correct") {
+        oscillator.frequency.setValueAtTime(523, now);
+        oscillator.frequency.setValueAtTime(659, now + 0.1);
+        oscillator.frequency.setValueAtTime(784, now + 0.2);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        oscillator.start(now);
+        oscillator.stop(now + 0.4);
+      } else if (type === "combo") {
+        oscillator.frequency.setValueAtTime(659, now);
+        oscillator.frequency.setValueAtTime(880, now + 0.1);
+        oscillator.frequency.setValueAtTime(1046, now + 0.2);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        oscillator.start(now);
+        oscillator.stop(now + 0.4);
+      } else if (type === "wrong") {
+        oscillator.frequency.setValueAtTime(210, now);
+        oscillator.frequency.setValueAtTime(155, now + 0.15);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        oscillator.start(now);
+        oscillator.stop(now + 0.3);
+      } else if (type === "click") {
+        oscillator.frequency.setValueAtTime(440, now);
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        oscillator.start(now);
+        oscillator.stop(now + 0.1);
+      } else if (type === "finish") {
+        oscillator.frequency.setValueAtTime(440, now);
+        oscillator.frequency.setValueAtTime(554, now + 0.1);
+        oscillator.frequency.setValueAtTime(659, now + 0.2);
+        oscillator.frequency.setValueAtTime(880, now + 0.3);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.55);
+        oscillator.start(now);
+        oscillator.stop(now + 0.55);
+      }
+    } catch (error) {
+      // 浏览器不支持声音时不影响游戏运行
+    }
   },
-  showComboFloat(combo){
-    const el=document.createElement('div');
-    el.className='combo-float';
-    el.textContent=combo+' 连击!';
-    el.style.left=(window.innerWidth/2-40)+'px';
-    el.style.top=(window.innerHeight/2)+'px';
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),800);
+
+  updateCombo(combo) {
+    const element = this.$("game-combo");
+
+    if (!element) return;
+
+    if (combo >= 2) {
+      element.textContent = combo + " 连击";
+      this.showComboFloat(combo);
+    } else {
+      element.textContent = "";
+    }
+  },
+
+  createNextButton(gameObject, isLast) {
+    const area = document.createElement("div");
+    area.className = "next-area";
+
+    const button = document.createElement("button");
+    button.className = "primary";
+    button.textContent = isLast ? "查看本局成绩" : "下一题";
+
+    button.addEventListener("click", () => {
+      gameObject.next();
+    });
+
+    area.appendChild(button);
+    Utils.$("game-content").appendChild(area);
+  },
+
+  getScoreTitle(score) {
+    if (score >= 2000) return "杏林宗师";
+    if (score >= 1000) return "本草名家";
+    if (score >= 600) return "杏林医者";
+    if (score >= 300) return "本草弟子";
+    if (score >= 100) return "采药学徒";
+    return "初入杏林";
+  },
+
+  getResultLevel(accuracy) {
+    if (accuracy === 100) return "本草通达";
+    if (accuracy >= 80) return "杏林高手";
+    if (accuracy >= 60) return "勤学善思";
+    return "继续研习";
+  },
+
+  formatDate(timestamp) {
+    try {
+      return new Date(timestamp).toLocaleString("zh-CN");
+    } catch (error) {
+      return "";
+    }
   }
 };
 
-// ===== STATE MANAGEMENT =====
-const State={
-  _data:null,
-  load(){
-    try{
-      const raw=localStorage.getItem('bencaotang_save');
-      this._data=raw?JSON.parse(raw):null;
-    }catch(e){this._data=null;}
-    if(!this._data)this._data={score:0,unlocked:[],bestScores:{}};
-    if(!this._data.unlocked)this._data.unlocked=[];
-    if(!this._data.bestScores)this._data.bestScores={};
-    return this._data;
+// ============================================================
+// 统一计时器
+// ============================================================
+
+const GameTimer = {
+  interval: null,
+  timeLeft: 0,
+  totalTime: 0,
+  onEnd: null,
+
+  start(seconds, onEnd) {
+    this.stop();
+
+    this.timeLeft = seconds;
+    this.totalTime = seconds;
+    this.onEnd = onEnd;
+
+    this.render();
+
+    this.interval = setInterval(() => {
+      this.timeLeft -= 1;
+      this.render();
+
+      if (this.timeLeft <= 0) {
+        const callback = this.onEnd;
+        this.stop();
+
+        if (typeof callback === "function") {
+          callback();
+        }
+      }
+    }, 1000);
   },
-  save(){try{localStorage.setItem('bencaotang_save',JSON.stringify(this._data));}catch(e){}},
-  get score(){return this._data.score||0;},
-  addScore(n){this._data.score=(this._data.score||0)+n;this.save();},
-  get unlocked(){return this._data.unlocked||[];},
-  unlockHerb(id){
-    if(!this._data.unlocked.includes(id)){this._data.unlocked.push(id);this.save();return true;}
-    return false;
+
+  stop() {
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+
+    this.interval = null;
+    this.onEnd = null;
   },
-  unlockHerbs(names){
-    let c=0;
-    names.forEach(n=>{const h=Utils.getHerb(n);if(h&&this.unlockHerb(h.id))c++;});
-    return c;
-  },
-  setBest(mode,s){
-    if(!this._data.bestScores[mode]||s>this._data.bestScores[mode]){
-      this._data.bestScores[mode]=s;this.save();
+
+  render() {
+    const timer = Utils.$("game-timer");
+    const bar = Utils.$("timer-bar-inner");
+
+    if (timer) {
+      timer.textContent = this.timeLeft + " 秒";
+      timer.classList.toggle("warning", this.timeLeft <= 10);
+    }
+
+    if (bar) {
+      const percent = this.totalTime
+        ? Math.max(0, this.timeLeft / this.totalTime * 100)
+        : 0;
+
+      bar.style.width = percent + "%";
+      bar.classList.toggle("warning", this.timeLeft <= 10);
     }
   },
-  getBest(mode){return this._data.bestScores[mode]||0;},
-  reset(){this._data={score:0,unlocked:[],bestScores:{}};this.save();}
+
+  resetDisplay() {
+    this.stop();
+
+    const timer = Utils.$("game-timer");
+    const bar = Utils.$("timer-bar-inner");
+
+    if (timer) {
+      timer.textContent = "";
+      timer.classList.remove("warning");
+    }
+
+    if (bar) {
+      bar.style.width = "100%";
+      bar.classList.remove("warning");
+    }
+  }
 };
 
-// ===== APP CONTROLLER =====
-const App={
-  currentScreen:'home',currentGame:null,
-  init(){State.load();this.updateHomeScore();},
-  showScreen(name){
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    const screen=Utils.$('screen-'+name);
-    if(screen){screen.classList.add('active');this.currentScreen=name;}
-    if(name==='home')this.updateHomeScore();
-    if(name==='encyclopedia')this.renderEncyclopedia();
-    if(name==='leaderboard')this.renderLeaderboard();
-    if(this.currentGame&&name!=='game')this.currentGame=null;
+// ============================================================
+// 本地进度
+// ============================================================
+
+const State = {
+  data: null,
+
+  load() {
+    try {
+      const saved = localStorage.getItem("bencaotang_save");
+      this.data = saved ? JSON.parse(saved) : {};
+    } catch (error) {
+      this.data = {};
+    }
+
+    this.data.score = Number(this.data.score) || 0;
+    this.data.unlocked = Array.isArray(this.data.unlocked)
+      ? this.data.unlocked
+      : [];
+    this.data.bestScores = this.data.bestScores || {};
+    this.data.wrongbook = Array.isArray(this.data.wrongbook)
+      ? this.data.wrongbook
+      : [];
+    this.data.soundEnabled =
+      this.data.soundEnabled === undefined
+        ? true
+        : Boolean(this.data.soundEnabled);
+
+    this.save();
   },
-  updateHomeScore(){Utils.$('home-score').textContent=State.score;},
-  startGame(mode){
-    this.showScreen('game');
-    switch(mode){
-      case 'identify':IdentifyGame.start();break;
-      case 'formula':FormulaGame.start();break;
-      case 'classify':ClassifyGame.start();break;
-      case 'prescribe':PrescribeGame.start();break;
-      case 'match':MatchGame.start();break;
+
+  save() {
+    try {
+      localStorage.setItem(
+        "bencaotang_save",
+        JSON.stringify(this.data)
+      );
+    } catch (error) {
+      // 本地存储不可用时不影响基础答题
     }
   },
-  resetProgress(){
-    if(confirm('确定要重置所有进度吗？积分、图鉴解锁都将被清除。')){
-      State.reset();this.updateHomeScore();alert('进度已重置');
+
+  get score() {
+    return this.data.score || 0;
+  },
+
+  get unlocked() {
+    return this.data.unlocked || [];
+  },
+
+  get wrongbook() {
+    return this.data.wrongbook || [];
+  },
+
+  get soundEnabled() {
+    return this.data.soundEnabled !== false;
+  },
+
+  addScore(score) {
+    this.data.score += Number(score) || 0;
+    this.save();
+  },
+
+  setSound(enabled) {
+    this.data.soundEnabled = Boolean(enabled);
+    this.save();
+  },
+
+  unlockHerb(id) {
+    if (!id || this.data.unlocked.includes(id)) {
+      return false;
+    }
+
+    this.data.unlocked.push(id);
+    this.save();
+    return true;
+  },
+
+  unlockHerbs(names) {
+    let count = 0;
+
+    names.forEach(name => {
+      const herb = Utils.getHerb(name);
+
+      if (herb && this.unlockHerb(herb.id)) {
+        count += 1;
+      }
+    });
+
+    return count;
+  },
+
+  setBest(mode, score) {
+    const oldScore = Number(this.data.bestScores[mode]) || 0;
+
+    if (score > oldScore) {
+      this.data.bestScores[mode] = score;
+      this.save();
     }
   },
-  showResult(title,score,details,mode){
-    const overlay=document.createElement('div');
-    overlay.className='result-overlay';
-    overlay.innerHTML='<div class="result-card"><h2>'+title+'</h2>'+
-      '<div class="score-big">+'+score+'</div>'+
-      '<p style="color:var(--ink-light);font-size:0.9rem">'+(details||'')+'</p>'+
-      '<div class="btn-group">'+
-      '<button onclick="this.closest(\'.result-overlay\').remove();App.showScreen(\'home\')">返回首页</button>'+
-      '<button class="primary" onclick="this.closest(\'.result-overlay\').remove();App.startGame(\''+(mode||'identify')+'\')">再来一局</button>'+
-      '</div></div>';
+
+  getBest(mode) {
+    return Number(this.data.bestScores[mode]) || 0;
+  },
+
+  addWrong(entry) {
+    const key = entry.key;
+    const oldIndex = this.data.wrongbook.findIndex(
+      item => item.key === key
+    );
+
+    const record = {
+      ...entry,
+      createdAt: Date.now(),
+      mastered: false
+    };
+
+    if (oldIndex >= 0) {
+      this.data.wrongbook[oldIndex] = record;
+    } else {
+      this.data.wrongbook.unshift(record);
+    }
+
+    this.data.wrongbook = this.data.wrongbook.slice(0, 100);
+    this.save();
+  },
+
+  removeWrong(key) {
+    this.data.wrongbook = this.data.wrongbook.filter(
+      item => item.key !== key
+    );
+    this.save();
+  },
+
+  clearWrongbook() {
+    this.data.wrongbook = [];
+    this.save();
+  },
+
+  reset() {
+    this.data = {
+      score: 0,
+      unlocked: [],
+      bestScores: {},
+      wrongbook: [],
+      soundEnabled: true
+    };
+
+    this.save();
+  }
+};
+
+// ============================================================
+// 游戏公共统计
+// ============================================================
+
+function createGameStats() {
+  return {
+    correct: 0,
+    wrong: 0,
+    timeout: 0,
+    hints: 0,
+    maxCombo: 0
+  };
+}
+
+function calculateTimeBonus(timeLeft, maxBonus) {
+  if (timeLeft >= 45) return maxBonus;
+  if (timeLeft >= 30) return Math.ceil(maxBonus * 0.6);
+  if (timeLeft >= 15) return Math.ceil(maxBonus * 0.3);
+  return 0;
+}
+
+// ============================================================
+// 应用控制
+// ============================================================
+
+const GameMap = {};
+
+const App = {
+  currentMode: null,
+
+  init() {
+    State.load();
+
+    GameMap.identify = IdentifyGame;
+    GameMap.formula = FormulaGame;
+    GameMap.classify = ClassifyGame;
+    GameMap.prescribe = PrescribeGame;
+    GameMap.match = MatchGame;
+
+    this.updateHome();
+  },
+
+  showScreen(name) {
+    if (name !== "game") {
+      GameTimer.resetDisplay();
+    }
+
+    document.querySelectorAll(".screen").forEach(screen => {
+      screen.classList.remove("active");
+    });
+
+    const target = Utils.$("screen-" + name);
+
+    if (target) {
+      target.classList.add("active");
+    }
+
+    if (name === "home") {
+      this.updateHome();
+    } else if (name === "encyclopedia") {
+      this.renderEncyclopedia();
+    } else if (name === "wrongbook") {
+      this.renderWrongbook();
+    } else if (name === "leaderboard") {
+      this.renderLeaderboard();
+    }
+  },
+
+  startGame(mode) {
+    GameTimer.resetDisplay();
+    this.currentMode = mode;
+    this.showScreen("game");
+
+    const game = GameMap[mode];
+
+    if (game) {
+      game.start();
+    }
+  },
+
+  leaveGame() {
+    if (
+      confirm("确定返回首页吗？本局尚未结算的积分不会保存。")
+    ) {
+      GameTimer.resetDisplay();
+
+      const game = GameMap[this.currentMode];
+
+      if (game && typeof game.cancel === "function") {
+        game.cancel();
+      }
+
+      this.currentMode = null;
+      this.showScreen("home");
+    }
+  },
+
+  updateHome() {
+    Utils.$("home-score").textContent = State.score;
+    Utils.$("home-title-name").textContent =
+      Utils.getScoreTitle(State.score);
+    Utils.$("home-unlocked").textContent =
+      State.unlocked.length + "/" + HERBS.length;
+
+    const soundButton = Utils.$("sound-button");
+
+    if (soundButton) {
+      soundButton.textContent = State.soundEnabled
+        ? "🔊 音效开启"
+        : "🔇 音效关闭";
+    }
+  },
+
+  toggleSound() {
+    State.setSound(!State.soundEnabled);
+    this.updateHome();
+
+    if (State.soundEnabled) {
+      Utils.playSound("click");
+    }
+  },
+
+  resetProgress() {
+    const confirmed = confirm(
+      "确定要重置全部进度吗？积分、图鉴、最佳成绩和错题记录都将被清除。"
+    );
+
+    if (!confirmed) return;
+
+    State.reset();
+    this.updateHome();
+    alert("游戏进度已重置。");
+  },
+
+  finishGame(mode, title, score, stats) {
+    GameTimer.resetDisplay();
+
+    State.addScore(score);
+    State.setBest(mode, score);
+
+    Utils.playSound("finish");
+
+    DataSubmit.submit(
+      mode,
+      score,
+      State.unlocked.length,
+      stats.maxCombo
+    );
+
+    this.showResult(title, score, stats, mode);
+  },
+
+  showResult(title, score, stats, mode) {
+    const total =
+      stats.correct + stats.wrong + stats.timeout;
+
+    const accuracy = total
+      ? Math.round(stats.correct / total * 100)
+      : 0;
+
+    const level = Utils.getResultLevel(accuracy);
+
+    const overlay = document.createElement("div");
+    overlay.className = "result-overlay";
+
+    overlay.innerHTML = `
+      <div class="result-card">
+        <h2>${Utils.escapeHtml(title)}</h2>
+        <div class="score-big">${score} 分</div>
+        <div class="result-level">${level}</div>
+
+        <div class="result-stats">
+          <div class="result-stat">
+            <span>答对</span>
+            <strong>${stats.correct}</strong>
+          </div>
+
+          <div class="result-stat">
+            <span>答错</span>
+            <strong>${stats.wrong}</strong>
+          </div>
+
+          <div class="result-stat">
+            <span>超时</span>
+            <strong>${stats.timeout}</strong>
+          </div>
+
+          <div class="result-stat">
+            <span>正确率</span>
+            <strong>${accuracy}%</strong>
+          </div>
+
+          <div class="result-stat">
+            <span>最高连击</span>
+            <strong>${stats.maxCombo}</strong>
+          </div>
+
+          <div class="result-stat">
+            <span>使用提示</span>
+            <strong>${stats.hints}</strong>
+          </div>
+        </div>
+
+        <p style="color:var(--ink-light);font-size:.82rem">
+          总积分：${State.score}　
+          当前称号：${Utils.getScoreTitle(State.score)}
+        </p>
+
+        <div class="btn-group">
+          <button data-action="home">返回首页</button>
+          <button data-action="wrongbook">查看错题</button>
+          <button class="primary" data-action="again">再来一局</button>
+        </div>
+      </div>
+    `;
+
+    overlay.querySelector('[data-action="home"]')
+      .addEventListener("click", () => {
+        overlay.remove();
+        this.currentMode = null;
+        this.showScreen("home");
+      });
+
+    overlay.querySelector('[data-action="wrongbook"]')
+      .addEventListener("click", () => {
+        overlay.remove();
+        this.currentMode = null;
+        this.showScreen("wrongbook");
+      });
+
+    overlay.querySelector('[data-action="again"]')
+      .addEventListener("click", () => {
+        overlay.remove();
+        this.startGame(mode);
+      });
+
     document.body.appendChild(overlay);
   },
-  renderEncyclopedia(){
-    Utils.$('ency-score').textContent=State.score;
-    const unlocked=State.unlocked;
-    Utils.$('ency-count').textContent=unlocked.length+'/'+HERBS.length;
-    const cats=[...new Set(HERBS.map(h=>h.cat))];
-    let html='<button class="active" onclick="App.filterEncy(\'all\',this)">全部</button>';
-    cats.forEach(c=>{html+='<button onclick="App.filterEncy(\''+c+'\',this)">'+c+'</button>';});
-    Utils.$('ency-filter').innerHTML=html;
-    this._encyFilter='all';
-    this._renderEncyGrid();
-  },
-  _encyFilter:'all',
-  filterEncy(cat,btn){
-    this._encyFilter=cat;
-    document.querySelectorAll('#ency-filter button').forEach(b=>b.classList.remove('active'));
-    if(btn)btn.classList.add('active');
-    this._renderEncyGrid();
-  },
-  _renderEncyGrid(){
-    const filter=this._encyFilter;
-    const herbs=filter==='all'?HERBS:HERBS.filter(h=>h.cat===filter);
-    let html='<div class="ency-grid">';
-    herbs.forEach(h=>{
-      const u=State.unlocked.includes(h.id);
-      html+='<div class="ency-card'+(u?'':' locked')+'" onclick="App.showHerbDetail('+h.id+')">'+
-        '<span class="herb-emoji">'+(u?h.emoji:'\u{1F512}')+'</span>'+
-        '<div class="herb-name">'+(u?h.name:'???')+'</div>'+
-        '<div class="herb-cat">'+h.cat+'</div></div>';
+
+  renderEncyclopedia() {
+    Utils.$("ency-score").textContent = State.score;
+    Utils.$("ency-count").textContent =
+      State.unlocked.length + "/" + HERBS.length;
+
+    const categories = [...new Set(HERBS.map(h => h.cat))];
+
+    let filterHtml = `
+      <button class="active" data-category="all">全部</button>
+    `;
+
+    categories.forEach(category => {
+      filterHtml += `
+        <button data-category="${Utils.escapeHtml(category)}">
+          ${Utils.escapeHtml(category)}
+        </button>
+      `;
     });
-    html+='</div>';
-    Utils.$('ency-content').innerHTML=html;
+
+    Utils.$("ency-filter").innerHTML = filterHtml;
+
+    Utils.$("ency-filter")
+      .querySelectorAll("button")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          Utils.$("ency-filter")
+            .querySelectorAll("button")
+            .forEach(item => item.classList.remove("active"));
+
+          button.classList.add("active");
+          this.renderEncyclopediaGrid(button.dataset.category);
+        });
+      });
+
+    this.renderEncyclopediaGrid("all");
   },
-  showHerbDetail(id){
-    const h=Utils.getHerb(id);
-    if(!h||!State.unlocked.includes(id))return;
-    const rf=FORMULAS.filter(f=>f.herbs.includes(h.name));
-    let html='<button class="small" onclick="App.renderEncyclopedia()" style="margin-bottom:12px">\u2190 返回图鉴</button>';
-    html+='<div class="ency-detail card">';
-    html+='<div style="text-align:center;font-size:3rem;margin-bottom:8px">'+h.emoji+'</div>';
-    html+='<h2 style="text-align:center">'+h.name+'</h2>';
-    html+='<div style="text-align:center;margin:8px 0">'+Utils.natureBadge(h.nature)+' <span class="badge badge-green">'+h.cat+'</span></div>';
-    html+='<hr class="divider">';
-    html+='<div class="detail-section"><h4>性味</h4><p>'+h.flavor+'</p></div>';
-    html+='<div class="detail-section"><h4>归经</h4><p>'+h.meridian+'</p></div>';
-    html+='<div class="detail-section"><h4>功效</h4><p>'+h.effect+'</p></div>';
-    html+='<div class="detail-section"><h4>主治</h4><p>'+h.indication+'</p></div>';
-    if(rf.length>0)html+='<div class="detail-section"><h4>经典方剂</h4><p>'+rf.map(f=>f.name).join('、')+'</p></div>';
-    html+='<div class="knowledge-card"><h4>趣味冷知识</h4><p class="fun-fact">'+h.fun+'</p></div>';
-    html+='</div>';
-    Utils.$('ency-content').innerHTML=html;
-  },
-  renderLeaderboard(){
-    const modes=[{key:'identify',name:'辨药识材'},{key:'formula',name:'组方配伍'},{key:'classify',name:'四性五味'},{key:'prescribe',name:'对症开方'},{key:'match',name:'药材连连看'}];
-    let html='<div style="text-align:center;margin:16px 0"><p style="color:var(--ink-light)">总积分</p><div style="font-family:var(--font-num);font-size:2.4rem;color:var(--gold)">'+State.score+'</div></div><hr class="divider"><h3 style="margin:16px 0 8px">各模式最佳成绩</h3><div class="lb-list">';
-    modes.forEach(m=>{
-      const best=State.getBest(m.key);
-      html+='<div class="lb-item"><span class="rank">'+m.name+'</span><span class="lb-score">'+best+' 分</span></div>';
+
+  renderEncyclopediaGrid(category) {
+    const list =
+      category === "all"
+        ? HERBS
+        : HERBS.filter(h => h.cat === category);
+
+    let html = '<div class="ency-grid">';
+
+    list.forEach(herb => {
+      const unlocked = State.unlocked.includes(herb.id);
+
+      html += `
+        <div
+          class="ency-card ${unlocked ? "" : "locked"}"
+          data-id="${herb.id}"
+        >
+          <span class="herb-emoji">
+            ${unlocked ? herb.emoji : "🔒"}
+          </span>
+
+          <div class="herb-name">
+            ${unlocked ? Utils.escapeHtml(herb.name) : "???"}
+          </div>
+
+          <div class="herb-cat">
+            ${Utils.escapeHtml(herb.cat)}
+          </div>
+        </div>
+      `;
     });
-    html+='</div>';
-    Utils.$('lb-content').innerHTML=html;
+
+    html += "</div>";
+
+    Utils.$("ency-content").innerHTML = html;
+
+    Utils.$("ency-content")
+      .querySelectorAll(".ency-card:not(.locked)")
+      .forEach(card => {
+        card.addEventListener("click", () => {
+          this.showHerbDetail(Number(card.dataset.id));
+        });
+      });
+  },
+
+  showHerbDetail(id) {
+    const herb = Utils.getHerb(id);
+
+    if (!herb || !State.unlocked.includes(id)) return;
+
+    const relatedFormulas = FORMULAS.filter(formula =>
+      formula.herbs.includes(herb.name)
+    );
+
+    Utils.$("ency-content").innerHTML = `
+      <button class="small" id="back-to-ency">← 返回图鉴</button>
+
+      <div class="ency-detail card">
+        <div style="font-size:3rem;text-align:center">
+          ${herb.emoji}
+        </div>
+
+        <h2 style="text-align:center">
+          ${Utils.escapeHtml(herb.name)}
+        </h2>
+
+        <div style="text-align:center;margin:8px 0">
+          ${Utils.natureBadge(herb.nature)}
+          <span class="badge badge-green">
+            ${Utils.escapeHtml(herb.cat)}
+          </span>
+        </div>
+
+        <div class="detail-section">
+          <h4>性味</h4>
+          <p>${Utils.escapeHtml(herb.flavor)}</p>
+        </div>
+
+        <div class="detail-section">
+          <h4>归经</h4>
+          <p>${Utils.escapeHtml(herb.meridian)}</p>
+        </div>
+
+        <div class="detail-section">
+          <h4>功效</h4>
+          <p>${Utils.escapeHtml(herb.effect)}</p>
+        </div>
+
+        <div class="detail-section">
+          <h4>主治</h4>
+          <p>${Utils.escapeHtml(herb.indication)}</p>
+        </div>
+
+        <div class="detail-section">
+          <h4>相关方剂</h4>
+          <p>
+            ${
+              relatedFormulas.length
+                ? relatedFormulas
+                    .map(f => Utils.escapeHtml(f.name))
+                    .join("、")
+                : Utils.escapeHtml(herb.formula || "暂无")
+            }
+          </p>
+        </div>
+
+        <div class="knowledge-card">
+          <h4>本草小知识</h4>
+          <p>${Utils.escapeHtml(herb.fun)}</p>
+        </div>
+      </div>
+    `;
+
+    Utils.$("back-to-ency").addEventListener("click", () => {
+      this.renderEncyclopedia();
+    });
+  },
+
+  renderWrongbook() {
+    const container = Utils.$("wrongbook-content");
+    const records = State.wrongbook;
+
+    if (!records.length) {
+      container.innerHTML = `
+        <div class="wrongbook-empty">
+          <div style="font-size:2.5rem">📖</div>
+          <p>暂无错题记录。</p>
+          <p style="font-size:.82rem">
+            答错或超时的题目会自动收录在这里。
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    let html = `
+      <div class="question-tools">
+        <span class="selection-count">
+          共 ${records.length} 条错题
+        </span>
+
+        <button class="small danger" id="clear-wrongbook">
+          清空错题
+        </button>
+      </div>
+    `;
+
+    records.forEach(record => {
+      html += `
+        <div class="wrong-item">
+          <h3>${Utils.escapeHtml(record.title)}</h3>
+
+          <div class="wrong-meta">
+            ${Utils.escapeHtml(record.modeName)} ·
+            ${Utils.formatDate(record.createdAt)}
+          </div>
+
+          <p>
+            <strong>题目：</strong>
+            ${Utils.escapeHtml(record.question)}
+          </p>
+
+          <p class="answer-wrong">
+            <strong>你的答案：</strong>
+            ${Utils.escapeHtml(record.userAnswer || "未作答")}
+          </p>
+
+          <p class="answer-right">
+            <strong>正确答案：</strong>
+            ${Utils.escapeHtml(record.correctAnswer)}
+          </p>
+
+          <p>
+            <strong>解析：</strong>
+            ${Utils.escapeHtml(record.explanation || "暂无")}
+          </p>
+
+          <div class="wrong-actions">
+            <button
+              class="small"
+              data-review="${Utils.escapeHtml(record.mode)}"
+            >
+              练习该模式
+            </button>
+
+            <button
+              class="small danger"
+              data-remove="${Utils.escapeHtml(record.key)}"
+            >
+              移除
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+
+    const clearButton = Utils.$("clear-wrongbook");
+
+    if (clearButton) {
+      clearButton.addEventListener("click", () => {
+        if (confirm("确定清空全部错题记录吗？")) {
+          State.clearWrongbook();
+          this.renderWrongbook();
+        }
+      });
+    }
+
+    container.querySelectorAll("[data-review]").forEach(button => {
+      button.addEventListener("click", () => {
+        this.startGame(button.dataset.review);
+      });
+    });
+
+    container.querySelectorAll("[data-remove]").forEach(button => {
+      button.addEventListener("click", () => {
+        State.removeWrong(button.dataset.remove);
+        this.renderWrongbook();
+      });
+    });
+  },
+
+  renderLeaderboard() {
+    const modes = [
+      ["identify", "辨药识材"],
+      ["formula", "组方配伍"],
+      ["classify", "四性五味"],
+      ["prescribe", "对症开方"],
+      ["match", "药材连连看"]
+    ];
+
+    let html = `
+      <div class="card" style="text-align:center">
+        <p style="color:var(--ink-light)">当前称号</p>
+        <h2 style="color:var(--vermilion);margin:4px 0">
+          ${Utils.getScoreTitle(State.score)}
+        </h2>
+
+        <p style="color:var(--ink-light)">医道总积分</p>
+        <div style="
+          color:var(--gold);
+          font-family:var(--font-num);
+          font-size:2.3rem
+        ">
+          ${State.score}
+        </div>
+      </div>
+
+      <h2 class="section-title">各模式最佳成绩</h2>
+      <div class="lb-list">
+    `;
+
+    modes.forEach(([key, name]) => {
+      html += `
+        <div class="lb-item">
+          <span>${name}</span>
+          <span class="lb-score">${State.getBest(key)} 分</span>
+        </div>
+      `;
+    });
+
+    html += `
+      </div>
+
+      <div class="notice">
+        成绩保存在当前浏览器中。
+        清理浏览器数据或更换设备后，本地记录可能无法保留。
+      </div>
+    `;
+
+    Utils.$("lb-content").innerHTML = html;
   }
 };
 
-// ===== GAME 1: IDENTIFY (辨药识材) =====
-const IdentifyGame={
-  questions:[],current:0,total:10,score:0,combo:0,
-  start(){
-    App.currentGame='identify';
-    Utils.$('game-title').textContent='辨药识材';
-    this.questions=this.genQ();this.current=0;this.score=0;this.combo=0;
-    Utils.$('game-score').textContent='0';Utils.$('game-combo').textContent='';
+// ============================================================
+// 辨药识材
+// ============================================================
+
+const IdentifyGame = {
+  questions: [],
+  current: 0,
+  score: 0,
+  combo: 0,
+  stats: null,
+  locked: false,
+  hintUsed: false,
+
+  start() {
+    App.currentMode = "identify";
+    Utils.$("game-title").textContent = "辨药识材";
+
+    this.questions = Utils.pick(
+      HERBS,
+      GAME_CONFIG.identifyTotal
+    ).map(herb => {
+      const sameCategory = HERBS.filter(
+        item => item.id !== herb.id && item.cat === herb.cat
+      );
+
+      const wrongPool =
+        sameCategory.length >= 3
+          ? sameCategory
+          : HERBS.filter(item => item.id !== herb.id);
+
+      return {
+        herb,
+        options: Utils.shuffle([
+          herb.name,
+          ...Utils.pick(wrongPool, 3).map(item => item.name)
+        ])
+      };
+    });
+
+    this.current = 0;
+    this.score = 0;
+    this.combo = 0;
+    this.stats = createGameStats();
+
+    Utils.$("game-score").textContent = "0";
+    Utils.$("game-combo").textContent = "";
+
     this.render();
   },
-  genQ(){
-    const qs=[];const shuffled=Utils.shuffle(HERBS);
-    const diffs=['初级','中级','高级'];
-    for(let i=0;i<this.total&&i<shuffled.length;i++){
-      const herb=shuffled[i];
-      const diff=diffs[Math.min(2,Math.floor(i/4))];
-      let clue='';
-      if(diff==='初级')clue='功效：'+herb.effect+'\n主治：'+herb.indication;
-      else if(diff==='中级')clue='性味：'+herb.flavor+'\n归经：'+herb.meridian+'\n功效：'+herb.effect;
-      else clue='性味：'+herb.flavor+'\n归经：'+herb.meridian+'\n类别：'+herb.cat+'\n相关方剂：'+herb.formula;
-      const wrongs=Utils.shuffle(HERBS.filter(h=>h.id!==herb.id)).slice(0,3).map(h=>h.name);
-      const options=Utils.shuffle([herb.name,...wrongs]);
-      qs.push({herb,clue,options,diff,answered:false});
-    }
-    return qs;
-  },
-  render(){
-    if(this.current>=this.total){this.finish();return;}
-    const q=this.questions[this.current];
-    Utils.$('game-progress').textContent=(this.current+1)+'/'+this.total;
-    Utils.$('game-timer').textContent=q.diff;
-    let html='<div class="question-area">';
-    html+='<div class="question-text" style="white-space:pre-line">'+q.clue+'</div>';
-    html+='<div class="options-grid">';
-    q.options.forEach((opt,i)=>{
-      html+='<button class="option-btn" onclick="IdentifyGame.answer('+i+',this)" data-idx="'+i+'">'+opt+'</button>';
+
+  render() {
+    const question = this.questions[this.current];
+    const herb = question.herb;
+
+    this.locked = false;
+    this.hintUsed = false;
+
+    Utils.$("game-progress").textContent =
+      `${this.current + 1}/${this.questions.length}`;
+
+    Utils.$("game-content").innerHTML = `
+      <div class="question-area">
+        <div class="question-text">
+          <strong>请根据以下线索辨认药材：</strong><br>
+          性味：${Utils.escapeHtml(herb.flavor)}<br>
+          归经：${Utils.escapeHtml(herb.meridian)}<br>
+          功效：${Utils.escapeHtml(herb.effect)}
+        </div>
+
+        <div class="question-tools">
+          <span class="selection-count">
+            每题限时 ${GAME_CONFIG.questionTime} 秒
+          </span>
+
+          <button class="small secondary" id="identify-hint">
+            查看提示
+          </button>
+        </div>
+
+        <div id="hint-container"></div>
+
+        <div class="options-grid" id="identify-options">
+          ${question.options.map((option, index) => `
+            <button
+              class="option-btn"
+              data-index="${index}"
+            >
+              ${Utils.escapeHtml(option)}
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    `;
+
+    Utils.$("identify-options")
+      .querySelectorAll(".option-btn")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          this.answer(
+            question.options[Number(button.dataset.index)],
+            false
+          );
+        });
+      });
+
+    Utils.$("identify-hint").addEventListener("click", () => {
+      this.showHint();
     });
-    html+='</div></div>';
-    Utils.$('game-content').innerHTML=html;
-  },
-  answer(idx,btn){
-    const q=this.questions[this.current];
-    if(q.answered)return;q.answered=true;
-    const selected=q.options[idx];
-    const correct=selected===q.herb.name;
-    document.querySelectorAll('.option-btn').forEach(b=>{
-      b.classList.add('disabled');
-      if(b.textContent===q.herb.name)b.classList.add('correct');
+
+    GameTimer.start(GAME_CONFIG.questionTime, () => {
+      this.answer(null, true);
     });
-    if(correct){
-      this.combo++;
-      const bonus=this.combo>=3?5:0;
-      const pts=10+bonus;
-      this.score+=pts;
-      Utils.$('game-score').textContent=this.score;
-      Utils.playSound(this.combo>=3?'combo':'correct');
-      if(this.combo>=2){
-        Utils.$('game-combo').textContent=this.combo+' 连击!';
-        Utils.$('game-combo').classList.remove('pop');
-        void Utils.$('game-combo').offsetWidth;
-        Utils.$('game-combo').classList.add('pop');
-        Utils.showComboFloat(this.combo);
+  },
+
+  showHint() {
+    if (this.locked || this.hintUsed) return;
+
+    this.hintUsed = true;
+    this.stats.hints += 1;
+
+    const herb = this.questions[this.current].herb;
+
+    Utils.$("hint-container").innerHTML = `
+      <div class="hint-box">
+        提示：本药属于“${Utils.escapeHtml(herb.cat)}”，
+        相关方剂为“${Utils.escapeHtml(herb.formula)}”。
+      </div>
+    `;
+
+    Utils.$("identify-hint").disabled = true;
+  },
+
+  answer(selected, timeout) {
+    if (this.locked) return;
+
+    this.locked = true;
+    GameTimer.stop();
+
+    const question = this.questions[this.current];
+    const herb = question.herb;
+    const correct = selected === herb.name;
+
+    document.querySelectorAll("#identify-options .option-btn")
+      .forEach(button => {
+        button.classList.add("disabled");
+
+        if (button.textContent.trim() === herb.name) {
+          button.classList.add("correct");
+        }
+
+        if (
+          selected &&
+          button.textContent.trim() === selected &&
+          !correct
+        ) {
+          button.classList.add("wrong");
+        }
+      });
+
+    let points = 0;
+
+    if (correct) {
+      this.combo += 1;
+      this.stats.correct += 1;
+
+      points =
+        10 +
+        calculateTimeBonus(GameTimer.timeLeft, 5) +
+        (this.combo >= 3 ? 5 : 0);
+
+      if (this.hintUsed) {
+        points = Math.max(5, points - 3);
       }
-      State.unlockHerb(q.herb.id);
-    }else{
-      btn.classList.add('wrong');btn.classList.add('shake');
-      this.combo=0;Utils.$('game-combo').textContent='';
-      Utils.playSound('wrong');
+
+      this.score += points;
+      this.stats.maxCombo = Math.max(
+        this.stats.maxCombo,
+        this.combo
+      );
+
+      Utils.playSound(this.combo >= 3 ? "combo" : "correct");
+    } else {
+      this.combo = 0;
+
+      if (timeout) {
+        this.stats.timeout += 1;
+      } else {
+        this.stats.wrong += 1;
+      }
+
+      Utils.playSound("wrong");
+
+      State.addWrong({
+        key: "identify-" + herb.id,
+        mode: "identify",
+        modeName: "辨药识材",
+        title: herb.name,
+        question: "根据性味、归经和功效辨认药材",
+        userAnswer: timeout ? "超时未作答" : selected,
+        correctAnswer: herb.name,
+        explanation:
+          herb.effect + "。主治：" + herb.indication
+      });
     }
-    const el=document.createElement('div');
-    el.className='knowledge-card pop-in';
-    el.innerHTML='<h4>'+q.herb.emoji+' '+q.herb.name+(correct?' (+'+pts+'分)':'')+'</h4><p>'+q.herb.effect+'</p><p class="fun-fact">'+q.herb.fun+'</p>';
-    Utils.$('game-content').appendChild(el);
-    setTimeout(()=>{this.current++;this.render();},2500);
+
+    State.unlockHerb(herb.id);
+
+    Utils.$("game-score").textContent = this.score;
+    Utils.updateCombo(this.combo);
+
+    const feedback = document.createElement("div");
+    feedback.className = "knowledge-card pop-in";
+
+    feedback.innerHTML = `
+      <h4>
+        ${
+          correct
+            ? `✓ 回答正确，获得 ${points} 分`
+            : timeout
+              ? "⌛ 时间到"
+              : "✗ 回答有误"
+        }
+      </h4>
+
+      <p>
+        <strong>正确答案：</strong>
+        ${herb.emoji} ${Utils.escapeHtml(herb.name)}
+      </p>
+
+      <p>
+        <strong>类别：</strong>
+        ${Utils.escapeHtml(herb.cat)}
+      </p>
+
+      <p>
+        <strong>功效：</strong>
+        ${Utils.escapeHtml(herb.effect)}
+      </p>
+
+      <p>
+        <strong>主治：</strong>
+        ${Utils.escapeHtml(herb.indication)}
+      </p>
+
+      <p class="fun-fact">
+        本草小知识：${Utils.escapeHtml(herb.fun)}
+      </p>
+    `;
+
+    Utils.$("game-content").appendChild(feedback);
+
+    Utils.createNextButton(
+      this,
+      this.current === this.questions.length - 1
+    );
   },
-  finish(){
-    State.addScore(this.score);State.setBest('identify',this.score);
-    Utils.playSound('unlock');
-    DataSubmit.submit('identify',this.score,State.unlocked.length,0);
-    App.showResult('辨药识材 - 完成',this.score,'共答 '+this.total+' 题','identify');
+
+  next() {
+    this.current += 1;
+
+    if (this.current >= this.questions.length) {
+      App.finishGame(
+        "identify",
+        "辨药识材完成",
+        this.score,
+        this.stats
+      );
+    } else {
+      this.render();
+    }
+  },
+
+  cancel() {
+    GameTimer.stop();
   }
 };
 
-// ===== GAME 2: FORMULA (组方配伍) =====
-const FormulaGame={
-  formulas:[],current:0,total:8,score:0,selected:[],timeLeft:0,timer:null,
-  start(){
-    App.currentGame='formula';
-    Utils.$('game-title').textContent='组方配伍';
-    this.formulas=Utils.shuffle(FORMULAS).slice(0,this.total);
-    this.current=0;this.score=0;
-    Utils.$('game-score').textContent='0';Utils.$('game-combo').textContent='';
+// ============================================================
+// 组方配伍
+// ============================================================
+
+const FormulaGame = {
+  questions: [],
+  current: 0,
+  score: 0,
+  combo: 0,
+  stats: null,
+  selected: [],
+  pool: [],
+  locked: false,
+  hintUsed: false,
+
+  start() {
+    App.currentMode = "formula";
+    Utils.$("game-title").textContent = "组方配伍";
+
+    this.questions = Utils.pick(
+      FORMULAS,
+      GAME_CONFIG.formulaTotal
+    );
+
+    this.current = 0;
+    this.score = 0;
+    this.combo = 0;
+    this.stats = createGameStats();
+
+    Utils.$("game-score").textContent = "0";
+    Utils.$("game-combo").textContent = "";
+
     this.render();
   },
-  render(){
-    if(this.current>=this.total){this.finish();return;}
-    const f=this.formulas[this.current];
-    this.selected=[];
-    Utils.$('game-progress').textContent=(this.current+1)+'/'+this.total;
-    this.timeLeft=30+f.herbs.length*5;
-    Utils.$('game-timer').textContent=this.timeLeft+'s';
-    if(this.timer)clearInterval(this.timer);
-    this.timer=setInterval(()=>{
-      this.timeLeft--;
-      Utils.$('game-timer').textContent=this.timeLeft+'s';
-      if(this.timeLeft<=0)this.timeUp();
-    },1000);
-    const distractors=Utils.shuffle(HERBS.filter(h=>!f.herbs.includes(h.name))).slice(0,6).map(h=>h.name);
-    const allHerbs=Utils.shuffle([...f.herbs,...distractors]);
-    let html='<div class="question-area">';
-    html+='<div class="question-text"><strong>'+f.name+'</strong><br>'+f.effect+'<br><span style="font-size:0.85rem;color:var(--ink-light)">主治：'+f.indication+'</span></div>';
-    html+='<p style="font-size:0.9rem;color:var(--ink-light);margin-bottom:8px">请选出该方剂的全部组成药材（共'+f.herbs.length+'味）：</p>';
-    html+='<div class="formula-slots" id="formula-slots"></div>';
-    html+='<div class="herb-pool" id="herb-pool">';
-    allHerbs.forEach(h=>{
-      html+='<span class="herb-chip" onclick="FormulaGame.toggle(this,\''+h+'\')">'+h+'</span>';
+
+  render() {
+    const formula = this.questions[this.current];
+
+    this.selected = [];
+    this.locked = false;
+    this.hintUsed = false;
+
+    const distractors = Utils.pick(
+      HERBS.filter(h => !formula.herbs.includes(h.name)),
+      6
+    ).map(h => h.name);
+
+    this.pool = Utils.shuffle([
+      ...formula.herbs,
+      ...distractors
+    ]);
+
+    Utils.$("game-progress").textContent =
+      `${this.current + 1}/${this.questions.length}`;
+
+    Utils.$("game-content").innerHTML = `
+      <div class="question-area">
+        <div class="question-text">
+          <strong>${Utils.escapeHtml(formula.name)}</strong><br>
+          功效：${Utils.escapeHtml(formula.effect)}<br>
+          <span style="color:var(--ink-light);font-size:.88rem">
+            主治：${Utils.escapeHtml(formula.indication)}
+          </span>
+        </div>
+
+        <div class="question-tools">
+          <span class="selection-count" id="formula-count">
+            需要选择 ${formula.herbs.length} 味，
+            已选择 0 味
+          </span>
+
+          <button class="small secondary" id="formula-hint">
+            查看提示
+          </button>
+        </div>
+
+        <div id="hint-container"></div>
+
+        <div class="formula-slots empty" id="formula-slots"></div>
+
+        <div class="herb-pool" id="formula-pool">
+          ${this.pool.map((name, index) => `
+            <span class="herb-chip" data-index="${index}">
+              ${Utils.escapeHtml(name)}
+            </span>
+          `).join("")}
+        </div>
+
+        <div style="text-align:center;margin-top:16px">
+          <button class="primary" id="formula-submit">
+            确认提交
+          </button>
+        </div>
+      </div>
+    `;
+
+    Utils.$("formula-pool")
+      .querySelectorAll(".herb-chip")
+      .forEach(chip => {
+        chip.addEventListener("click", () => {
+          this.toggle(
+            chip,
+            this.pool[Number(chip.dataset.index)]
+          );
+        });
+      });
+
+    Utils.$("formula-submit").addEventListener("click", () => {
+      this.submit(false);
     });
-    html+='</div>';
-    html+='<div style="text-align:center;margin-top:16px"><button class="primary" onclick="FormulaGame.submit()">确认提交</button></div>';
-    html+='</div>';
-    Utils.$('game-content').innerHTML=html;
+
+    Utils.$("formula-hint").addEventListener("click", () => {
+      this.showHint();
+    });
+
+    GameTimer.start(GAME_CONFIG.questionTime, () => {
+      this.submit(true);
+    });
   },
-  toggle(el,name){
-    Utils.playSound('click');
-    if(el.classList.contains('selected')){
-      el.classList.remove('selected');
-      this.selected=this.selected.filter(n=>n!==name);
-    }else{
-      el.classList.add('selected');
+
+  toggle(element, name) {
+    if (this.locked) return;
+
+    Utils.playSound("click");
+
+    if (this.selected.includes(name)) {
+      this.selected = this.selected.filter(item => item !== name);
+      element.classList.remove("selected");
+    } else {
+      const formula = this.questions[this.current];
+
+      if (this.selected.length >= formula.herbs.length) {
+        alert(
+          `本方共需选择 ${formula.herbs.length} 味药材，请先取消一味已选药材。`
+        );
+        return;
+      }
+
       this.selected.push(name);
+      element.classList.add("selected");
     }
-    Utils.$('formula-slots').innerHTML=this.selected.map(n=>'<span class="herb-chip">'+n+'</span>').join('');
-  },
-  submit(){
-    if(this.timer)clearInterval(this.timer);
-    const f=this.formulas[this.current];
-    const correct=f.herbs;
-    const isOk=this.selected.length===correct.length&&correct.every(h=>this.selected.includes(h));
-    if(isOk){
-      const pts=20+Math.max(0,this.timeLeft);
-      this.score+=pts;
-      Utils.$('game-score').textContent=this.score;
-      Utils.playSound('correct');
-      State.unlockHerbs(correct);
-    }else{
-      Utils.playSound('wrong');
-      correct.forEach(h=>{const hb=Utils.getHerb(h);if(hb)State.unlockHerb(hb.id);});
-    }
-    let rh='<div class="knowledge-card pop-in"><h4>'+(isOk?'正确! (+'+( 20+Math.max(0,this.timeLeft))+'分)':'不完全正确')+'</h4>';
-    rh+='<p><strong>'+f.name+'</strong> 组成：'+correct.join('、')+'</p>';
-    rh+='<p style="font-size:0.8rem;color:var(--ink-light)">出处：'+f.source+'</p>';
-    if(!isOk)rh+='<p style="color:var(--error);font-size:0.85rem">你选了：'+(this.selected.length?this.selected.join('、'):'无')+'</p>';
-    rh+='</div>';
-    Utils.$('game-content').appendChild(document.createRange().createContextualFragment(rh));
-    document.querySelectorAll('.herb-chip').forEach(c=>c.style.pointerEvents='none');
-    setTimeout(()=>{this.current++;this.render();},3000);
-  },
-  timeUp(){
-    if(this.timer)clearInterval(this.timer);
-    const f=this.formulas[this.current];
-    Utils.playSound('wrong');
-    const herbIds=f.herbs.map(n=>{const h=Utils.getHerb(n);return h?h.id:null;}).filter(Boolean);
-    herbIds.forEach(id=>State.unlockHerb(id));
-    let rh='<div class="knowledge-card pop-in"><h4>时间到!</h4>';
-    rh+='<p><strong>'+f.name+'</strong> 组成：'+f.herbs.join('、')+'</p>';
-    rh+='<p style="font-size:0.8rem;color:var(--ink-light)">出处：'+f.source+'</p></div>';
-    Utils.$('game-content').appendChild(document.createRange().createContextualFragment(rh));
-    document.querySelectorAll('.herb-chip').forEach(c=>c.style.pointerEvents='none');
-    setTimeout(()=>{this.current++;this.render();},3000);
-  },
-  finish(){
-    if(this.timer)clearInterval(this.timer);
-    State.addScore(this.score);State.setBest('formula',this.score);
-    Utils.playSound('unlock');
-    DataSubmit.submit('formula',this.score,State.unlocked.length,0);
-    App.showResult('组方配伍 - 完成',this.score,'共配 '+this.total+' 方','formula');
-  }
-};
 
-// ===== GAME 3: CLASSIFY (四性五味分类) =====
-const ClassifyGame={
-  herbs:[],current:0,total:20,score:0,combo:0,maxCombo:0,
-  mode:'nature',timer:null,timeLeft:0,
-  start(){
-    App.currentGame='classify';
-    Utils.$('game-title').textContent='四性五味';
-    this.herbs=Utils.shuffle(HERBS).slice(0,this.total);
-    this.current=0;this.score=0;this.combo=0;this.maxCombo=0;
-    Utils.$('game-score').textContent='0';Utils.$('game-combo').textContent='';
-    this.render();
+    this.updateSelection();
   },
-  render(){
-    if(this.current>=this.total){this.finish();return;}
-    const h=this.herbs[this.current];
-    Utils.$('game-progress').textContent=(this.current+1)+'/'+this.total;
-    Utils.$('game-timer').textContent='';
-    const lanes=this.mode==='nature'?['寒','凉','温','平']:['酸','苦','甘','辛','咸'];
-    let html='<div style="text-align:center;margin-bottom:8px;font-size:0.85rem;color:var(--ink-light)">';
-    html+=this.mode==='nature'?'请将药材按「四性」分类到对应区域':'请将药材按「五味」分类到对应区域';
-    html+='</div>';
-    html+='<div class="current-herb-display">'+h.emoji+' '+h.name+'</div>';
-    html+='<div class="classify-lanes" style="grid-template-columns:repeat('+lanes.length+',1fr)">';
-    lanes.forEach(lane=>{
-      html+='<div class="classify-lane" onclick="ClassifyGame.classify(\''+lane+'\')" data-lane="'+lane+'">';
-      html+='<div>'+lane+'</div></div>';
-    });
-    html+='</div>';
-    Utils.$('game-content').innerHTML=html;
-  },
-  classify(lane){
-    const h=this.herbs[this.current];
-    let correctAnswer;
-    if(this.mode==='nature'){
-      correctAnswer=Utils.natureCat(h.nature);
-    }else{
-      correctAnswer=Utils.flavorCat(h.flavor);
-    }
-    const isCorrect=lane===correctAnswer;
-    const laneEl=document.querySelector('[data-lane="'+lane+'"]');
-    if(isCorrect){
-      this.combo++;
-      if(this.combo>this.maxCombo)this.maxCombo=this.combo;
-      const pts=10+(this.combo>=3?5:0);
-      this.score+=pts;
-      Utils.$('game-score').textContent=this.score;
-      Utils.playSound(this.combo>=3?'combo':'correct');
-      if(laneEl)laneEl.classList.add('highlight');
-      if(this.combo>=2){
-        Utils.$('game-combo').textContent=this.combo+' 连击!';
-        Utils.$('game-combo').classList.remove('pop');
-        void Utils.$('game-combo').offsetWidth;
-        Utils.$('game-combo').classList.add('pop');
-        Utils.showComboFloat(this.combo);
-      }
-      State.unlockHerb(h.id);
-      if(laneEl){
-        const item=document.createElement('div');
-        item.className='lane-item';
-        item.textContent=h.name+' \u2713';
-        item.style.color='var(--herb-green)';
-        laneEl.appendChild(item);
-      }
-    }else{
-      this.combo=0;
-      Utils.$('game-combo').textContent='';
-      Utils.playSound('wrong');
-      if(laneEl){laneEl.classList.add('shake');setTimeout(()=>laneEl.classList.remove('shake'),400);}
-    }
-    setTimeout(()=>{
-      this.current++;
-      if(this.current===10&&this.mode==='nature'){
-        this.mode='flavor';
-        this.herbs=Utils.shuffle(HERBS).slice(0,this.total);
-        this.current=0;
-      }
-      this.render();
-    },800);
-  },
-  finish(){
-    State.addScore(this.score);State.setBest('classify',this.score);
-    Utils.playSound('unlock');
-    DataSubmit.submit('classify',this.score,State.unlocked.length,this.maxCombo);
-    App.showResult('四性五味 - 完成',this.score,'最高连击：'+this.maxCombo,'classify');
-  }
-};
 
-// ===== GAME 4: PRESCRIBE (对症开方) =====
-const PrescribeGame={
-  questions:[],current:0,total:10,score:0,combo:0,
-  start(){
-    App.currentGame='prescribe';
-    Utils.$('game-title').textContent='对症开方';
-    this.questions=Utils.shuffle(SYMPTOMS).slice(0,this.total);
-    this.current=0;this.score=0;this.combo=0;
-    Utils.$('game-score').textContent='0';Utils.$('game-combo').textContent='';
-    this.render();
-  },
-  render(){
-    if(this.current>=this.total){this.finish();return;}
-    const q=this.questions[this.current];
-    Utils.$('game-progress').textContent=(this.current+1)+'/'+this.total;
-    Utils.$('game-timer').textContent='';
-    const options=Utils.shuffle([q.answer,...q.distractors]);
-    let html='<div class="question-area">';
-    html+='<div class="symptom-card"><div class="patient">\u{1FA7A} 患者：'+q.patient+'</div>';
-    html+='<div class="symptoms">'+q.symptoms+'</div></div>';
-    html+='<p style="font-size:0.9rem;color:var(--ink-light);margin:12px 0">请根据症状，选出最对症的方剂：</p>';
-    html+='<div class="options-grid">';
-    options.forEach(opt=>{
-      html+='<button class="option-btn" onclick="PrescribeGame.answer(this,\''+opt.replace(/'/g,"\\'")+'\')">'+opt+'</button>';
-    });
-    html+='</div></div>';
-    Utils.$('game-content').innerHTML=html;
-  },
-  answer(btn,selected){
-    const q=this.questions[this.current];
-    const correct=selected===q.answer;
-    document.querySelectorAll('.option-btn').forEach(b=>{
-      b.classList.add('disabled');
-      if(b.textContent===q.answer)b.classList.add('correct');
-    });
-    if(correct){
-      this.combo++;
-      const pts=15+(this.combo>=3?5:0);
-      this.score+=pts;
-      Utils.$('game-score').textContent=this.score;
-      Utils.playSound(this.combo>=3?'combo':'correct');
-      if(this.combo>=2){
-        Utils.$('game-combo').textContent=this.combo+' 连击!';
-        Utils.$('game-combo').classList.remove('pop');
-        void Utils.$('game-combo').offsetWidth;
-        Utils.$('game-combo').classList.add('pop');
-        Utils.showComboFloat(this.combo);
-      }
-      const f=Utils.getFormula(q.answer);
-      if(f)State.unlockHerbs(f.herbs);
-    }else{
-      btn.classList.add('wrong');btn.classList.add('shake');
-      this.combo=0;Utils.$('game-combo').textContent='';
-      Utils.playSound('wrong');
-    }
-    const el=document.createElement('div');
-    el.className='knowledge-card pop-in';
-    el.innerHTML='<h4>'+(correct?'\u2713 辨证正确':'\u2717 辨证有误')+'</h4><p><strong>正确方剂：'+q.answer+'</strong></p><p>'+q.explain+'</p>';
-    Utils.$('game-content').appendChild(el);
-    setTimeout(()=>{this.current++;this.render();},3000);
-  },
-  finish(){
-    State.addScore(this.score);State.setBest('prescribe',this.score);
-    Utils.playSound('unlock');
-    DataSubmit.submit('prescribe',this.score,State.unlocked.length,this.combo);
-    App.showResult('对症开方 - 完成',this.score,'共诊治 '+this.total+' 位患者','prescribe');
-  }
-};
+  updateSelection() {
+    const formula = this.questions[this.current];
+    const slots = Utils.$("formula-slots");
 
-// ===== GAME 5: MATCH (药材连连看) =====
-const MatchGame={
-  pairs:[],grid:[],selected:null,matched:0,total:0,score:0,combo:0,
-  start(){
-    App.currentGame='match';
-    Utils.$('game-title').textContent='药材连连看';
-    this.score=0;this.combo=0;this.matched=0;
-    Utils.$('game-score').textContent='0';Utils.$('game-combo').textContent='';
-    this.generateGrid();
-    this.render();
+    Utils.$("formula-count").textContent =
+      `需要选择 ${formula.herbs.length} 味，` +
+      `已选择 ${this.selected.length} 味，` +
+      `还差 ${Math.max(0, formula.herbs.length - this.selected.length)} 味`;
+
+    slots.classList.toggle("empty", this.selected.length === 0);
+
+    slots.innerHTML = this.selected
+      .map(name => `
+        <span class="herb-chip selected">
+          ${Utils.escapeHtml(name)}
+        </span>
+      `)
+      .join("");
   },
-  generateGrid(){
-    const selectedHerbs=Utils.shuffle(HERBS).slice(0,8);
-    this.pairs=[];
-    this.total=selectedHerbs.length;
-    selectedHerbs.forEach(h=>{
-      this.pairs.push({id:'h'+h.id,text:h.name,type:'herb',matchId:h.id});
-      this.pairs.push({id:'e'+h.id,text:h.effect.split('\u3001')[0],type:'effect',matchId:h.id});
-    });
-    this.grid=Utils.shuffle([...this.pairs]);
-    this.selected=null;
+
+  showHint() {
+    if (this.locked || this.hintUsed) return;
+
+    this.hintUsed = true;
+    this.stats.hints += 1;
+
+    const formula = this.questions[this.current];
+    const notSelected = formula.herbs.filter(
+      name => !this.selected.includes(name)
+    );
+
+    const hintHerb = notSelected[0] || formula.herbs[0];
+
+    Utils.$("hint-container").innerHTML = `
+      <div class="hint-box">
+        提示：本方组成中包含“${Utils.escapeHtml(hintHerb)}”。
+      </div>
+    `;
+
+    Utils.$("formula-hint").disabled = true;
   },
-  render(){
-    Utils.$('game-progress').textContent=this.matched+'/'+this.total+' 对';
-    Utils.$('game-timer').textContent='';
-    let html='<div style="text-align:center;margin-bottom:8px;font-size:0.85rem;color:var(--ink-light)">配对药材名与功效</div>';
-    html+='<div class="match-grid" style="grid-template-columns:repeat(4,1fr)">';
-    this.grid.forEach((cell,i)=>{
-      const cls=cell.matched?'matched':(this.selected===i?'selected':'');
-      html+='<div class="match-cell '+cls+'" onclick="MatchGame.click('+i+')" data-idx="'+i+'">'+cell.text+'</div>';
-    });
-    html+='</div>';
-    Utils.$('game-content').innerHTML=html;
-  },
-  click(idx){
-    const cell=this.grid[idx];
-    if(cell.matched)return;
-    Utils.playSound('click');
-    if(this.selected===null){
-      this.selected=idx;
-      this.render();
-    }else if(this.selected===idx){
-      this.selected=null;
-      this.render();
-    }else{
-      const first=this.grid[this.selected];
-      const second=cell;
-      if(first.matchId===second.matchId&&first.type!==second.type){
-        first.matched=true;second.matched=true;
-        this.matched++;
-        this.combo++;
-        const pts=15+(this.combo>=3?5:0);
-        this.score+=pts;
-        Utils.$('game-score').textContent=this.score;
-        Utils.playSound(this.combo>=3?'combo':'correct');
-        if(this.combo>=2){
-          Utils.$('game-combo').textContent=this.combo+' 连击!';
-          Utils.$('game-combo').classList.remove('pop');
-          void Utils.$('game-combo').offsetWidth;
-          Utils.$('game-combo').classList.add('pop');
-          Utils.showComboFloat(this.combo);
+
+  submit(timeout) {
+    if (this.locked) return;
+
+    this.locked = true;
+    GameTimer.stop();
+
+    const formula = this.questions[this.current];
+
+    const selectedCorrect = this.selected.filter(name =>
+      formula.herbs.includes(name)
+    );
+
+    const wrongSelected = this.selected.filter(name =>
+      !formula.herbs.includes(name)
+    );
+
+    const missed = formula.herbs.filter(name =>
+      !this.selected.includes(name)
+    );
+
+    const correct =
+      wrongSelected.length === 0 &&
+      missed.length === 0 &&
+      this.selected.length === formula.herbs.length;
+
+    let points = 0;
+
+    if (correct) {
+      this.combo += 1;
+      this.stats.correct += 1;
+
+      points =
+        20 +
+        calculateTimeBonus(GameTimer.timeLeft, 10) +
+        (this.combo >= 3 ? 5 : 0);
+
+      if (this.hintUsed) {
+        points = Math.max(10, points - 3);
+      }
+
+      this.score += points;
+      this.stats.maxCombo = Math.max(
+        this.stats.maxCombo,
+        this.combo
+      );
+
+      Utils.playSound(this.combo >= 3 ? "combo" : "correct");
+    } else {
+      this.combo = 0;
+
+      if (timeout) {
+        this.stats.timeout += 1;
+      } else {
+        this.stats.wrong += 1;
+      }
+
+      Utils.playSound("wrong");
+
+      State.addWrong({
+        key: "formula-" + formula.id,
+        mode: "formula",
+        modeName: "组方配伍",
+        title: formula.name,
+        question: "选出该方剂的全部组成药材",
+        userAnswer:
+          timeout
+            ? "超时：" + (this.selected.join("、") || "未选择")
+            : this.selected.join("、") || "未选择",
+        correctAnswer: formula.herbs.join("、"),
+        explanation:
+          formula.effect + "。出处：" + formula.source
+      });
+    }
+
+    State.unlockHerbs(formula.herbs);
+
+    Utils.$("game-score").textContent = this.score;
+    Utils.updateCombo(this.combo);
+
+    document.querySelectorAll("#formula-pool .herb-chip")
+      .forEach(chip => {
+        const name = chip.textContent.trim();
+        chip.classList.remove("selected");
+        chip.style.pointerEvents = "none";
+
+        if (formula.herbs.includes(name)) {
+          if (this.selected.includes(name)) {
+            chip.classList.add("correct-pick");
+          } else {
+            chip.classList.add("missed");
+          }
+        } else if (this.selected.includes(name)) {
+          chip.classList.add("wrong-pick");
         }
-        const herb=HERBS.find(h=>h.id===first.matchId);
-        if(herb)State.unlockHerb(herb.id);
-        this.selected=null;
+      });
+
+    Utils.$("formula-submit").disabled = true;
+
+    const feedback = document.createElement("div");
+    feedback.className = "knowledge-card pop-in";
+
+    feedback.innerHTML = `
+      <h4>
+        ${
+          correct
+            ? `✓ 配伍正确，获得 ${points} 分`
+            : timeout
+              ? "⌛ 时间到"
+              : "✗ 配伍不完整"
+        }
+      </h4>
+
+      <p>
+        <strong>方剂组成：</strong>
+        ${Utils.escapeHtml(formula.herbs.join("、"))}
+      </p>
+
+      <p class="answer-right">
+        <strong>选对：</strong>
+        ${Utils.escapeHtml(selectedCorrect.join("、") || "无")}
+      </p>
+
+      <p class="answer-wrong">
+        <strong>错选：</strong>
+        ${Utils.escapeHtml(wrongSelected.join("、") || "无")}
+      </p>
+
+      <p>
+        <strong>遗漏：</strong>
+        ${Utils.escapeHtml(missed.join("、") || "无")}
+      </p>
+
+      <p>
+        <strong>功效：</strong>
+        ${Utils.escapeHtml(formula.effect)}
+      </p>
+
+      <p>
+        <strong>出处：</strong>
+        ${Utils.escapeHtml(formula.source)}
+      </p>
+    `;
+
+    Utils.$("game-content").appendChild(feedback);
+
+    Utils.createNextButton(
+      this,
+      this.current === this.questions.length - 1
+    );
+  },
+
+  next() {
+    this.current += 1;
+
+    if (this.current >= this.questions.length) {
+      App.finishGame(
+        "formula",
+        "组方配伍完成",
+        this.score,
+        this.stats
+      );
+    } else {
+      this.render();
+    }
+  },
+
+  cancel() {
+    GameTimer.stop();
+  }
+};
+
+// ============================================================
+// 四性五味
+// ============================================================
+
+const ClassifyGame = {
+  questions: [],
+  current: 0,
+  score: 0,
+  combo: 0,
+  stats: null,
+  locked: false,
+  hintUsed: false,
+
+  start() {
+    App.currentMode = "classify";
+    Utils.$("game-title").textContent = "四性五味";
+
+    const natureQuestions = Utils.pick(
+      HERBS,
+      GAME_CONFIG.classifyNatureTotal
+    ).map(herb => ({
+      herb,
+      type: "nature"
+    }));
+
+    const flavorQuestions = Utils.pick(
+      HERBS,
+      GAME_CONFIG.classifyFlavorTotal
+    ).map(herb => ({
+      herb,
+      type: "flavor"
+    }));
+
+    this.questions = [
+      ...natureQuestions,
+      ...flavorQuestions
+    ];
+
+    this.current = 0;
+    this.score = 0;
+    this.combo = 0;
+    this.stats = createGameStats();
+
+    Utils.$("game-score").textContent = "0";
+    Utils.$("game-combo").textContent = "";
+
+    this.render();
+  },
+
+  render() {
+    const question = this.questions[this.current];
+    const herb = question.herb;
+
+    this.locked = false;
+    this.hintUsed = false;
+
+    const isNature = question.type === "nature";
+
+    const lanes = isNature
+      ? ["寒凉", "温热", "平性"]
+      : ["酸", "苦", "甘", "辛", "咸"];
+
+    Utils.$("game-progress").textContent =
+      `${this.current + 1}/${this.questions.length}`;
+
+    Utils.$("game-content").innerHTML = `
+      <div class="question-area">
+        <div class="classify-note">
+          ${
+            isNature
+              ? "药性分类：微寒归入寒凉，微温归入温热，平归入平性"
+              : "部分中药具有多种药味，选择其中任一正确药味即可"
+          }
+        </div>
+
+        <div class="current-herb-display">
+          ${herb.emoji} ${Utils.escapeHtml(herb.name)}
+        </div>
+
+        <div class="question-tools">
+          <span class="selection-count">
+            ${
+              isNature
+                ? "请选择该药材所属药性"
+                : "请选择该药材的一种正确药味"
+            }
+          </span>
+
+          <button class="small secondary" id="classify-hint">
+            查看提示
+          </button>
+        </div>
+
+        <div id="hint-container"></div>
+
+        <div
+          class="classify-lanes"
+          id="classify-lanes"
+          style="${isNature ? "" : "grid-template-columns:repeat(5,1fr)"}"
+        >
+          ${lanes.map(lane => `
+            <div class="classify-lane" data-lane="${lane}">
+              ${lane}
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+
+    Utils.$("classify-lanes")
+      .querySelectorAll(".classify-lane")
+      .forEach(lane => {
+        lane.addEventListener("click", () => {
+          this.answer(lane.dataset.lane, false);
+        });
+      });
+
+    Utils.$("classify-hint").addEventListener("click", () => {
+      this.showHint();
+    });
+
+    GameTimer.start(GAME_CONFIG.questionTime, () => {
+      this.answer(null, true);
+    });
+  },
+
+  showHint() {
+    if (this.locked || this.hintUsed) return;
+
+    this.hintUsed = true;
+    this.stats.hints += 1;
+
+    const question = this.questions[this.current];
+    const herb = question.herb;
+
+    const text =
+      question.type === "nature"
+        ? `提示：数据库记载本药药性为“${herb.nature}”。`
+        : `提示：本药共有 ${Utils.getFlavors(herb.flavor).length} 种主要药味。`;
+
+    Utils.$("hint-container").innerHTML = `
+      <div class="hint-box">${Utils.escapeHtml(text)}</div>
+    `;
+
+    Utils.$("classify-hint").disabled = true;
+  },
+
+  answer(selected, timeout) {
+    if (this.locked) return;
+
+    this.locked = true;
+    GameTimer.stop();
+
+    const question = this.questions[this.current];
+    const herb = question.herb;
+
+    const correctAnswers =
+      question.type === "nature"
+        ? [Utils.getNatureCategory(herb.nature)]
+        : Utils.getFlavors(herb.flavor);
+
+    const correct = correctAnswers.includes(selected);
+
+    document.querySelectorAll("#classify-lanes .classify-lane")
+      .forEach(lane => {
+        lane.style.pointerEvents = "none";
+
+        if (correctAnswers.includes(lane.dataset.lane)) {
+          lane.classList.add("correct");
+        }
+
+        if (
+          selected &&
+          lane.dataset.lane === selected &&
+          !correct
+        ) {
+          lane.classList.add("wrong");
+        }
+      });
+
+    let points = 0;
+
+    if (correct) {
+      this.combo += 1;
+      this.stats.correct += 1;
+
+      points =
+        10 +
+        calculateTimeBonus(GameTimer.timeLeft, 5) +
+        (this.combo >= 3 ? 5 : 0);
+
+      if (this.hintUsed) {
+        points = Math.max(5, points - 3);
+      }
+
+      this.score += points;
+      this.stats.maxCombo = Math.max(
+        this.stats.maxCombo,
+        this.combo
+      );
+
+      Utils.playSound(this.combo >= 3 ? "combo" : "correct");
+    } else {
+      this.combo = 0;
+
+      if (timeout) {
+        this.stats.timeout += 1;
+      } else {
+        this.stats.wrong += 1;
+      }
+
+      Utils.playSound("wrong");
+
+      State.addWrong({
+        key:
+          "classify-" +
+          question.type +
+          "-" +
+          herb.id,
+        mode: "classify",
+        modeName: "四性五味",
+        title:
+          herb.name +
+          (question.type === "nature" ? "·药性" : "·药味"),
+        question:
+          question.type === "nature"
+            ? "判断该药材所属药性"
+            : "判断该药材的药味",
+        userAnswer: timeout ? "超时未作答" : selected,
+        correctAnswer:
+          question.type === "nature"
+            ? correctAnswers.join("、")
+            : herb.flavor,
+        explanation:
+          `${herb.name}性味为${herb.nature}，${herb.flavor}；` +
+          `功效为${herb.effect}。`
+      });
+    }
+
+    State.unlockHerb(herb.id);
+
+    Utils.$("game-score").textContent = this.score;
+    Utils.updateCombo(this.combo);
+
+    const feedback = document.createElement("div");
+    feedback.className = "knowledge-card pop-in";
+
+    feedback.innerHTML = `
+      <h4>
+        ${
+          correct
+            ? `✓ 分类正确，获得 ${points} 分`
+            : timeout
+              ? "⌛ 时间到"
+              : "✗ 分类有误"
+        }
+      </h4>
+
+      <p>
+        <strong>药材：</strong>
+        ${herb.emoji} ${Utils.escapeHtml(herb.name)}
+      </p>
+
+      <p>
+        <strong>完整药性：</strong>
+        ${Utils.escapeHtml(herb.nature)}
+      </p>
+
+      <p>
+        <strong>完整药味：</strong>
+        ${Utils.escapeHtml(herb.flavor)}
+      </p>
+
+      <p>
+        <strong>功效：</strong>
+        ${Utils.escapeHtml(herb.effect)}
+      </p>
+    `;
+
+    Utils.$("game-content").appendChild(feedback);
+
+    Utils.createNextButton(
+      this,
+      this.current === this.questions.length - 1
+    );
+  },
+
+  next() {
+    this.current += 1;
+
+    if (this.current >= this.questions.length) {
+      App.finishGame(
+        "classify",
+        "四性五味完成",
+        this.score,
+        this.stats
+      );
+    } else {
+      this.render();
+    }
+  },
+
+  cancel() {
+    GameTimer.stop();
+  }
+};
+
+// ============================================================
+// 对症开方
+// ============================================================
+
+const PrescribeGame = {
+  questions: [],
+  current: 0,
+  score: 0,
+  combo: 0,
+  stats: null,
+  locked: false,
+  hintUsed: false,
+  options: [],
+
+  start() {
+    App.currentMode = "prescribe";
+    Utils.$("game-title").textContent = "对症开方";
+
+    this.questions = Utils.pick(
+      SYMPTOMS,
+      GAME_CONFIG.prescribeTotal
+    );
+
+    this.current = 0;
+    this.score = 0;
+    this.combo = 0;
+    this.stats = createGameStats();
+
+    Utils.$("game-score").textContent = "0";
+    Utils.$("game-combo").textContent = "";
+
+    this.render();
+  },
+
+  render() {
+    const question = this.questions[this.current];
+
+    this.locked = false;
+    this.hintUsed = false;
+    this.options = Utils.shuffle([
+      question.answer,
+      ...question.distractors
+    ]);
+
+    Utils.$("game-progress").textContent =
+      `${this.current + 1}/${this.questions.length}`;
+
+    Utils.$("game-content").innerHTML = `
+      <div class="question-area">
+        <div class="symptom-card">
+          <div class="patient">
+            🩺 模拟情境：${Utils.escapeHtml(question.patient)}
+          </div>
+
+          <div class="symptoms">
+            ${Utils.escapeHtml(question.symptoms)}
+          </div>
+        </div>
+
+        <div class="question-tools">
+          <span class="selection-count">
+            请根据上述表现选择适宜的经典方剂
+          </span>
+
+          <button class="small secondary" id="prescribe-hint">
+            查看提示
+          </button>
+        </div>
+
+        <div id="hint-container"></div>
+
+        <div class="options-grid" id="prescribe-options">
+          ${this.options.map((option, index) => `
+            <button class="option-btn" data-index="${index}">
+              ${Utils.escapeHtml(option)}
+            </button>
+          `).join("")}
+        </div>
+      </div>
+    `;
+
+    Utils.$("prescribe-options")
+      .querySelectorAll(".option-btn")
+      .forEach(button => {
+        button.addEventListener("click", () => {
+          this.answer(
+            this.options[Number(button.dataset.index)],
+            false
+          );
+        });
+      });
+
+    Utils.$("prescribe-hint").addEventListener("click", () => {
+      this.showHint();
+    });
+
+    GameTimer.start(GAME_CONFIG.questionTime, () => {
+      this.answer(null, true);
+    });
+  },
+
+  showHint() {
+    if (this.locked || this.hintUsed) return;
+
+    this.hintUsed = true;
+    this.stats.hints += 1;
+
+    const question = this.questions[this.current];
+    const formula = Utils.getFormula(question.answer);
+
+    Utils.$("hint-container").innerHTML = `
+      <div class="hint-box">
+        提示：治法方向为“${
+          formula
+            ? Utils.escapeHtml(formula.effect)
+            : "辨证选方"
+        }”。
+      </div>
+    `;
+
+    Utils.$("prescribe-hint").disabled = true;
+  },
+
+  answer(selected, timeout) {
+    if (this.locked) return;
+
+    this.locked = true;
+    GameTimer.stop();
+
+    const question = this.questions[this.current];
+    const formula = Utils.getFormula(question.answer);
+    const correct = selected === question.answer;
+
+    document.querySelectorAll("#prescribe-options .option-btn")
+      .forEach(button => {
+        button.classList.add("disabled");
+
+        if (button.textContent.trim() === question.answer) {
+          button.classList.add("correct");
+        }
+
+        if (
+          selected &&
+          button.textContent.trim() === selected &&
+          !correct
+        ) {
+          button.classList.add("wrong");
+        }
+      });
+
+    let points = 0;
+
+    if (correct) {
+      this.combo += 1;
+      this.stats.correct += 1;
+
+      points =
+        15 +
+        calculateTimeBonus(GameTimer.timeLeft, 5) +
+        (this.combo >= 3 ? 5 : 0);
+
+      if (this.hintUsed) {
+        points = Math.max(8, points - 3);
+      }
+
+      this.score += points;
+      this.stats.maxCombo = Math.max(
+        this.stats.maxCombo,
+        this.combo
+      );
+
+      Utils.playSound(this.combo >= 3 ? "combo" : "correct");
+    } else {
+      this.combo = 0;
+
+      if (timeout) {
+        this.stats.timeout += 1;
+      } else {
+        this.stats.wrong += 1;
+      }
+
+      Utils.playSound("wrong");
+
+      State.addWrong({
+        key: "prescribe-" + question.id,
+        mode: "prescribe",
+        modeName: "对症开方",
+        title: question.patient,
+        question: question.symptoms,
+        userAnswer: timeout ? "超时未作答" : selected,
+        correctAnswer: question.answer,
+        explanation: question.explain
+      });
+    }
+
+    if (formula) {
+      State.unlockHerbs(formula.herbs);
+    }
+
+    Utils.$("game-score").textContent = this.score;
+    Utils.updateCombo(this.combo);
+
+    const feedback = document.createElement("div");
+    feedback.className = "knowledge-card pop-in";
+
+    feedback.innerHTML = `
+      <h4>
+        ${
+          correct
+            ? `✓ 辨证选方正确，获得 ${points} 分`
+            : timeout
+              ? "⌛ 时间到"
+              : "✗ 辨证选方有误"
+        }
+      </h4>
+
+      <p>
+        <strong>正确方剂：</strong>
+        ${Utils.escapeHtml(question.answer)}
+      </p>
+
+      ${
+        formula
+          ? `
+            <p>
+              <strong>方剂功效：</strong>
+              ${Utils.escapeHtml(formula.effect)}
+            </p>
+
+            <p>
+              <strong>方剂组成：</strong>
+              ${Utils.escapeHtml(formula.herbs.join("、"))}
+            </p>
+
+            <p>
+              <strong>方剂出处：</strong>
+              ${Utils.escapeHtml(formula.source)}
+            </p>
+          `
+          : ""
+      }
+
+      <p>
+        <strong>辨证思路：</strong>
+        ${Utils.escapeHtml(question.explain)}
+      </p>
+
+      <p class="fun-fact">
+        本题为中医药知识模拟情境，不作为现实诊疗或用药建议。
+      </p>
+    `;
+
+    Utils.$("game-content").appendChild(feedback);
+
+    Utils.createNextButton(
+      this,
+      this.current === this.questions.length - 1
+    );
+  },
+
+  next() {
+    this.current += 1;
+
+    if (this.current >= this.questions.length) {
+      App.finishGame(
+        "prescribe",
+        "对症开方完成",
+        this.score,
+        this.stats
+      );
+    } else {
+      this.render();
+    }
+  },
+
+  cancel() {
+    GameTimer.stop();
+  }
+};
+
+// ============================================================
+// 药材连连看
+// ============================================================
+
+const MatchGame = {
+  grid: [],
+  pairHerbs: [],
+  selectedIndex: null,
+  matched: 0,
+  score: 0,
+  combo: 0,
+  stats: null,
+  locked: false,
+  ended: false,
+
+  start() {
+    App.currentMode = "match";
+    Utils.$("game-title").textContent = "药材连连看";
+
+    this.pairHerbs = Utils.pick(HERBS, 8);
+    this.grid = [];
+
+    this.pairHerbs.forEach(herb => {
+      const representativeEffect =
+        herb.effect.split("、").slice(0, 2).join("、");
+
+      this.grid.push({
+        type: "herb",
+        matchId: herb.id,
+        text: herb.name,
+        matched: false
+      });
+
+      this.grid.push({
+        type: "effect",
+        matchId: herb.id,
+        text: representativeEffect,
+        matched: false
+      });
+    });
+
+    this.grid = Utils.shuffle(this.grid);
+    this.selectedIndex = null;
+    this.matched = 0;
+    this.score = 0;
+    this.combo = 0;
+    this.locked = false;
+    this.ended = false;
+    this.stats = createGameStats();
+
+    Utils.$("game-score").textContent = "0";
+    Utils.$("game-combo").textContent = "";
+
+    this.render();
+
+    GameTimer.start(GAME_CONFIG.matchTime, () => {
+      this.endGame(true);
+    });
+  },
+
+  render() {
+    Utils.$("game-progress").textContent =
+      `${this.matched}/${this.pairHerbs.length} 对`;
+
+    Utils.$("game-content").innerHTML = `
+      <div class="question-area">
+        <div class="classify-note">
+          在 ${GAME_CONFIG.matchTime} 秒内，
+          配对药材名称与代表性功效
+        </div>
+
+        <div class="match-grid" id="match-grid">
+          ${this.grid.map((cell, index) => `
+            <div
+              class="match-cell
+                ${cell.matched ? "matched" : ""}
+                ${this.selectedIndex === index ? "selected" : ""}
+              "
+              data-index="${index}"
+            >
+              ${Utils.escapeHtml(cell.text)}
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+
+    Utils.$("match-grid")
+      .querySelectorAll(".match-cell")
+      .forEach(cell => {
+        cell.addEventListener("click", () => {
+          this.click(Number(cell.dataset.index));
+        });
+      });
+  },
+
+  click(index) {
+    if (this.locked || this.ended) return;
+
+    const cell = this.grid[index];
+
+    if (!cell || cell.matched) return;
+
+    Utils.playSound("click");
+
+    if (this.selectedIndex === null) {
+      this.selectedIndex = index;
+      this.render();
+      return;
+    }
+
+    if (this.selectedIndex === index) {
+      this.selectedIndex = null;
+      this.render();
+      return;
+    }
+
+    const firstIndex = this.selectedIndex;
+    const first = this.grid[firstIndex];
+    const second = this.grid[index];
+
+    const matched =
+      first.matchId === second.matchId &&
+      first.type !== second.type;
+
+    if (matched) {
+      first.matched = true;
+      second.matched = true;
+
+      this.matched += 1;
+      this.combo += 1;
+      this.stats.correct += 1;
+      this.stats.maxCombo = Math.max(
+        this.stats.maxCombo,
+        this.combo
+      );
+
+      const points = 15 + (this.combo >= 3 ? 5 : 0);
+      this.score += points;
+
+      const herb = Utils.getHerb(first.matchId);
+
+      if (herb) {
+        State.unlockHerb(herb.id);
+      }
+
+      this.selectedIndex = null;
+
+      Utils.$("game-score").textContent = this.score;
+      Utils.updateCombo(this.combo);
+      Utils.playSound(this.combo >= 3 ? "combo" : "correct");
+
+      this.render();
+
+      if (this.matched >= this.pairHerbs.length) {
+        this.endGame(false);
+      }
+    } else {
+      this.locked = true;
+      this.combo = 0;
+      this.stats.wrong += 1;
+
+      Utils.updateCombo(0);
+      Utils.playSound("wrong");
+
+      const cells = document.querySelectorAll(".match-cell");
+
+      if (cells[firstIndex]) {
+        cells[firstIndex].classList.add("wrong");
+      }
+
+      if (cells[index]) {
+        cells[index].classList.add("wrong");
+      }
+
+      setTimeout(() => {
+        this.selectedIndex = null;
+        this.locked = false;
         this.render();
-        if(this.matched>=this.total){
-          setTimeout(()=>this.finish(),500);
-        }
-      }else{
-        this.combo=0;Utils.$('game-combo').textContent='';
-        Utils.playSound('wrong');
-        const cells=document.querySelectorAll('.match-cell');
-        cells[this.selected].classList.add('wrong');
-        cells[idx].classList.add('wrong');
-        const sel=this.selected;
-        setTimeout(()=>{
-          if(cells[sel])cells[sel].classList.remove('wrong');
-          if(cells[idx])cells[idx].classList.remove('wrong');
-        },400);
-        this.selected=null;
-      }
+      }, 450);
     }
   },
-  finish(){
-    State.addScore(this.score);State.setBest('match',this.score);
-    Utils.playSound('unlock');
-    DataSubmit.submit('match',this.score,State.unlocked.length,this.combo);
-    App.showResult('药材连连看 - 完成',this.score,'配对 '+this.total+' 组','match');
+
+  endGame(timeout) {
+    if (this.ended) return;
+
+    this.ended = true;
+    this.locked = true;
+    GameTimer.stop();
+
+    if (timeout) {
+      this.stats.timeout += 1;
+
+      if (this.matched < this.pairHerbs.length) {
+        State.addWrong({
+          key: "match-" + Date.now(),
+          mode: "match",
+          modeName: "药材连连看",
+          title: "药材与功效配对",
+          question: "在规定时间内完成全部配对",
+          userAnswer:
+            `已完成 ${this.matched}/${this.pairHerbs.length} 对`,
+          correctAnswer: this.pairHerbs
+            .map(h => `${h.name}—${h.effect.split("、").slice(0, 2).join("、")}`)
+            .join("；"),
+          explanation: "可通过药材的代表性功效建立记忆联系。"
+        });
+      }
+    }
+
+    this.pairHerbs.forEach(herb => {
+      State.unlockHerb(herb.id);
+    });
+
+    const pairsHtml = this.pairHerbs.map(herb => `
+      <p>
+        <strong>${Utils.escapeHtml(herb.name)}</strong>
+        — ${Utils.escapeHtml(
+          herb.effect.split("、").slice(0, 2).join("、")
+        )}
+      </p>
+    `).join("");
+
+    Utils.$("game-content").innerHTML += `
+      <div class="knowledge-card pop-in">
+        <h4>
+          ${
+            timeout
+              ? "⌛ 时间到，以下为正确配对"
+              : "✓ 全部配对完成"
+          }
+        </h4>
+
+        ${pairsHtml}
+      </div>
+
+      <div class="next-area">
+        <button class="primary" id="match-result-button">
+          查看本局成绩
+        </button>
+      </div>
+    `;
+
+    Utils.$("match-result-button").addEventListener("click", () => {
+      App.finishGame(
+        "match",
+        "药材连连看完成",
+        this.score,
+        this.stats
+      );
+    });
+  },
+
+  cancel() {
+    this.ended = true;
+    GameTimer.stop();
   }
 };
 
-// ===== DATA SUBMISSION =====
-const DataSubmit={
-  apiUrl:'https://br-peppy-grue-dfccd1b7.supabase2.aidap-global.cn-beijing.volces.com/functions/v1/game-record-api',
-  submit(gameMode,score,unlockedCount,comboMax){
-    fetch(this.apiUrl,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({game_mode:gameMode,score:score,unlocked_count:unlockedCount,combo_max:comboMax})
-    }).catch(()=>{});
+// ============================================================
+// 数据提交
+// ============================================================
+
+const DataSubmit = {
+  apiUrl:
+    "https://br-peppy-grue-dfccd1b7.supabase2.aidap-global.cn-beijing.volces.com/functions/v1/game-record-api",
+
+  submit(gameMode, score, unlockedCount, comboMax) {
+    fetch(this.apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        game_mode: gameMode,
+        score,
+        unlocked_count: unlockedCount,
+        combo_max: comboMax
+      })
+    }).catch(() => {
+      // 网络提交失败不影响本地游戏
+    });
   }
 };
 
-// ===== INIT =====
-document.addEventListener('DOMContentLoaded',()=>App.init());
+// ============================================================
+// 初始化
+// ============================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+  App.init();
+});
+
