@@ -102,7 +102,6 @@ const HERBS=[
 {id:100,name:"火麻仁",emoji:"\u{1F331}",cat:"泻下药",nature:"平",flavor:"甘",meridian:"脾、胃、大肠",effect:"润肠通便",indication:"血虚津亏、肠燥便秘",formula:"麻子仁丸",fun:"火麻仁富含油脂，传统上常利用其质润多脂的特点治疗津亏肠燥便秘。"},
 {id:101,name:"郁李仁",emoji:"\u{1F330}",cat:"泻下药",nature:"平",flavor:"辛、苦、甘",meridian:"脾、大肠、小肠",effect:"润肠通便、利水消肿",indication:"津枯肠燥便秘、水肿胀满、脚气浮肿",formula:"五仁丸",fun:"郁李仁是蔷薇科植物的种仁，既能润肠，也具有一定利水消肿作用。"},
 {id:102,name:"独活",emoji:"\u{1F33F}",cat:"祛风湿药",nature:"微温",flavor:"辛、苦",meridian:"肾、膀胱",effect:"祛风除湿、通痹止痛、解表",indication:"风寒湿痹、腰膝疼痛、少阴头痛、风寒挟湿表证",formula:"独活寄生汤",fun:"传统上常说羌活偏治上半身风湿疼痛，独活则更常用于腰膝及下半身风寒湿痹。"}
-
 ];
 
 // ===== FORMULAS DATABASE (16 formulas) =====
