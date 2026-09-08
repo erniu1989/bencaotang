@@ -1,4 +1,4 @@
-// ===== HERBS DATABASE (65 herbs) =====
+// ===== HERBS DATABASE (77 herbs) =====
 const HERBS=[
 {id:1,name:"麻黄",emoji:"\u{1F33F}",cat:"解表药",nature:"温",flavor:"辛、微苦",meridian:"肺、膀胱",effect:"发汗散寒、宣肺平喘、利水消肿",indication:"风寒感冒、胸闷喘咳、风水浮肿",formula:"麻黄汤",fun:"麻黄是中药中的'发汗解表第一药'，含麻黄碱，现代感冒药中常见其成分。"},
 {id:2,name:"桂枝",emoji:"\u{1F333}",cat:"解表药",nature:"温",flavor:"辛、甘",meridian:"心、肺、膀胱",effect:"发汗解肌、温通经脉、助阳化气",indication:"风寒感冒、寒凝血滞、痰饮蓄水",formula:"桂枝汤",fun:"桂枝就是肉桂的嫩枝，张仲景'群方之冠'桂枝汤以它为主药。"},
@@ -64,7 +64,19 @@ const HERBS=[
 {id:62,name:"半夏",emoji:"\u{1F33F}",cat:"化痰药",nature:"温",flavor:"辛",meridian:"脾、胃、肺",effect:"燥湿化痰、降逆止呕、消痞散结",indication:"痰多咳喘、痰饮眩悸、风痰眩晕",formula:"二陈汤",fun:"半夏有毒须经炮制后方可入药。"},
 {id:63,name:"龙胆草",emoji:"\u{1F33F}",cat:"清热药",nature:"寒",flavor:"苦",meridian:"肝、胆",effect:"清热燥湿、泻肝胆火",indication:"湿热黄疸、阴肿阴痒、带下湿疹",formula:"龙胆泻肝汤",fun:"龙胆草苦寒至极，专泻肝胆实火。"},
 {id:64,name:"柏子仁",emoji:"\u{1F332}",cat:"安神药",nature:"平",flavor:"甘",meridian:"心、肾、大肠",effect:"养心安神、润肠通便",indication:"虚烦失眠、心悸怔忡、肠燥便秘",formula:"天王补心丹",fun:"柏子仁取自侧柏的种仁，既安神又润肠。"},
-{id:65,name:"龙眼肉",emoji:"\u{1FAD0}",cat:"补益药",nature:"温",flavor:"甘",meridian:"心、脾",effect:"补益心脾、养血安神",indication:"气血不足、心悸怔忡、健忘失眠",formula:"归脾汤",fun:"龙眼肉即桂圆肉，是补血安神佳品。"}
+{id:65,name:"龙眼肉",emoji:"\u{1FAD0}",cat:"补益药",nature:"温",flavor:"甘",meridian:"心、脾",effect:"补益心脾、养血安神",indication:"气血不足、心悸怔忡、健忘失眠",formula:"归脾汤",fun:"龙眼肉即桂圆肉，是补血安神佳品。"},
+{id:66,name:"牛蒡子",emoji:"",cat:"解表药",nature:"寒",flavor:"辛、苦",meridian:"肺、胃",effect:"疏散风热、宣肺透疹、解毒利咽",indication:"风热感冒、咽喉肿痛、麻疹不透、痈肿疮毒",formula:"银翘散",fun:"牛蒡子的果实可以入药，外形带有钩刺，容易附着在衣物和动物毛发上。"},
+{id:67,name:"淡豆豉",emoji:"",cat:"解表药",nature:"凉",flavor:"苦、辛",meridian:"肺、胃",effect:"解表除烦、宣发郁热",indication:"感冒寒热、头痛、热病烦闷、虚烦不眠",formula:"银翘散",fun:"淡豆豉由黑豆经过发酵加工而成，是中药炮制与发酵结合的代表药材。"},
+{id:68,name:"竹叶",emoji:"",cat:"清热药",nature:"寒",flavor:"甘、辛、淡",meridian:"心、胃、小肠",effect:"清热泻火、除烦、生津、利尿",indication:"热病烦渴、口舌生疮、小便短赤",formula:"银翘散",fun:"竹叶药性清轻，常用于热病烦渴及心火上炎等相关证候。"},
+{id:69,name:"芦根",emoji:"",cat:"清热药",nature:"寒",flavor:"甘",meridian:"肺、胃",effect:"清热泻火、生津止渴、除烦止呕、利尿",indication:"热病烦渴、肺热咳嗽、胃热呕吐、小便短赤",formula:"银翘散",fun:"芦根是芦苇的地下根茎，鲜品含有较多水分，常用于生津止渴。"},
+{id:70,name:"升麻",emoji:"",cat:"解表药",nature:"微寒",flavor:"辛、微甘",meridian:"肺、脾、胃、大肠",effect:"发表透疹、清热解毒、升举阳气",indication:"风热头痛、麻疹不透、咽喉肿痛、中气下陷",formula:"补中益气汤",fun:"升麻既能疏散风热，又能升举阳气，是补中益气汤中的重要配伍药物。"},
+{id:71,name:"玄参",emoji:"",cat:"清热药",nature:"微寒",flavor:"甘、苦、咸",meridian:"肺、胃、肾",effect:"清热凉血、滋阴降火、解毒散结",indication:"热入营血、温毒发斑、咽喉肿痛、津伤便秘",formula:"天王补心丹",fun:"玄参颜色较深，具有清热凉血和滋阴降火的特点。"},
+{id:72,name:"天冬",emoji:"",cat:"补益药",nature:"寒",flavor:"甘、苦",meridian:"肺、肾",effect:"养阴润燥、清肺生津",indication:"肺燥干咳、阴虚劳嗽、津伤口渴、肠燥便秘",formula:"天王补心丹",fun:"天冬与麦冬都能养阴生津，天冬滋阴清热之力相对较强。"},
+{id:73,name:"赤芍",emoji:"",cat:"活血化瘀药",nature:"微寒",flavor:"苦",meridian:"肝",effect:"清热凉血、散瘀止痛",indication:"热入营血、吐血衄血、目赤肿痛、经闭痛经",formula:"血府逐瘀汤",fun:"赤芍与白芍来源相近，但赤芍偏于清热凉血、散瘀止痛，白芍偏于养血敛阴。"},
+{id:74,name:"枳壳",emoji:"",cat:"理气药",nature:"微寒",flavor:"苦、辛、酸",meridian:"脾、胃",effect:"理气宽中、行滞消胀",indication:"胸胁气滞、脘腹胀满、食积不化",formula:"血府逐瘀汤",fun:"枳壳与枳实来源相近，枳壳通常取较成熟果实，作用相对缓和。"},
+{id:75,name:"栀子",emoji:"",cat:"清热药",nature:"寒",flavor:"苦",meridian:"心、肺、三焦",effect:"泻火除烦、清热利湿、凉血解毒",indication:"热病心烦、湿热黄疸、血热吐衄、目赤肿痛",formula:"龙胆泻肝汤",fun:"栀子果实可以入药，其黄色色素过去也曾用于染色。"},
+{id:76,name:"木通",emoji:"",cat:"祛湿药",nature:"寒",flavor:"苦",meridian:"心、小肠、膀胱",effect:"利尿通淋、清心除烦、通经下乳",indication:"热淋涩痛、水肿、口舌生疮、乳汁不下",formula:"龙胆泻肝汤",fun:"木通用药时需要注意品种鉴别，不应与含马兜铃酸的关木通混淆。"},
+{id:77,name:"车前子",emoji:"",cat:"祛湿药",nature:"微寒",flavor:"甘",meridian:"肝、肾、肺、小肠",effect:"清热利尿通淋、渗湿止泻、明目、祛痰",indication:"热淋涩痛、水肿、暑湿泄泻、目赤肿痛、痰热咳嗽",formula:"龙胆泻肝汤",fun:"车前子颗粒细小，传统煎煮时通常需要装入布袋包煎。"}
 ];
 
 // ===== FORMULAS DATABASE (16 formulas) =====
