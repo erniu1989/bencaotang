@@ -1,4 +1,4 @@
-// ===== HERBS DATABASE (77 herbs) =====
+// ===== HERBS DATABASE (102 herbs) =====
 const HERBS=[
 {id:1,name:"麻黄",emoji:"\u{1F33F}",cat:"解表药",nature:"温",flavor:"辛、微苦",meridian:"肺、膀胱",effect:"发汗散寒、宣肺平喘、利水消肿",indication:"风寒感冒、胸闷喘咳、风水浮肿",formula:"麻黄汤",fun:"麻黄是中药中的'发汗解表第一药'，含麻黄碱，现代感冒药中常见其成分。"},
 {id:2,name:"桂枝",emoji:"\u{1F333}",cat:"解表药",nature:"温",flavor:"辛、甘",meridian:"心、肺、膀胱",effect:"发汗解肌、温通经脉、助阳化气",indication:"风寒感冒、寒凝血滞、痰饮蓄水",formula:"桂枝汤",fun:"桂枝就是肉桂的嫩枝，张仲景'群方之冠'桂枝汤以它为主药。"},
@@ -76,7 +76,33 @@ const HERBS=[
 {id:74,name:"枳壳",emoji:"",cat:"理气药",nature:"微寒",flavor:"苦、辛、酸",meridian:"脾、胃",effect:"理气宽中、行滞消胀",indication:"胸胁气滞、脘腹胀满、食积不化",formula:"血府逐瘀汤",fun:"枳壳与枳实来源相近，枳壳通常取较成熟果实，作用相对缓和。"},
 {id:75,name:"栀子",emoji:"",cat:"清热药",nature:"寒",flavor:"苦",meridian:"心、肺、三焦",effect:"泻火除烦、清热利湿、凉血解毒",indication:"热病心烦、湿热黄疸、血热吐衄、目赤肿痛",formula:"龙胆泻肝汤",fun:"栀子果实可以入药，其黄色色素过去也曾用于染色。"},
 {id:76,name:"木通",emoji:"",cat:"祛湿药",nature:"寒",flavor:"苦",meridian:"心、小肠、膀胱",effect:"利尿通淋、清心除烦、通经下乳",indication:"热淋涩痛、水肿、口舌生疮、乳汁不下",formula:"龙胆泻肝汤",fun:"木通用药时需要注意品种鉴别，不应与含马兜铃酸的关木通混淆。"},
-{id:77,name:"车前子",emoji:"",cat:"祛湿药",nature:"微寒",flavor:"甘",meridian:"肝、肾、肺、小肠",effect:"清热利尿通淋、渗湿止泻、明目、祛痰",indication:"热淋涩痛、水肿、暑湿泄泻、目赤肿痛、痰热咳嗽",formula:"龙胆泻肝汤",fun:"车前子颗粒细小，传统煎煮时通常需要装入布袋包煎。"}
+{id:77,name:"车前子",emoji:"",cat:"祛湿药",nature:"微寒",flavor:"甘",meridian:"肝、肾、肺、小肠",effect:"清热利尿通淋、渗湿止泻、明目、祛痰",indication:"热淋涩痛、水肿、暑湿泄泻、目赤肿痛、痰热咳嗽",formula:"龙胆泻肝汤",fun:"车前子颗粒细小，传统煎煮时通常需要装入布袋包煎。"},
+{id:78,name:"辛夷",emoji:"\u{1F33C}",cat:"解表药",nature:"温",flavor:"辛",meridian:"肺、胃",effect:"散风寒、通鼻窍",indication:"风寒头痛、鼻塞流涕、鼻渊、鼻鼽",formula:"苍耳子散",fun:"辛夷是木兰科植物的干燥花蕾，表面密被茸毛，传统入药时常包煎。"},
+{id:79,name:"苍耳子",emoji:"\u{1F33F}",cat:"解表药",nature:"温",flavor:"辛、苦",meridian:"肺",effect:"散风寒、通鼻窍、祛风湿、止痛",indication:"风寒头痛、鼻塞流涕、鼻渊、风湿痹痛",formula:"苍耳子散",fun:"苍耳子的果实表面具有钩刺，容易附着在衣物和动物毛发上；本品有毒，应用应注意规范。"},
+{id:80,name:"蝉蜕",emoji:"\u{1F997}",cat:"解表药",nature:"寒",flavor:"甘",meridian:"肺、肝",effect:"疏散风热、利咽开音、透疹、明目退翳、息风止痉",indication:"风热感冒、咽痛音哑、麻疹不透、目赤翳障、惊风抽搐",formula:"消风散",fun:"蝉蜕是蝉羽化时脱落的外壳，质地轻清，传统认为其善于疏散风热。"},
+{id:81,name:"蔓荆子",emoji:"\u{1FAD0}",cat:"解表药",nature:"微寒",flavor:"辛、苦",meridian:"膀胱、肝、胃",effect:"疏散风热、清利头目",indication:"风热感冒头痛、头昏、目赤肿痛、耳鸣耳聋",formula:"川芎茶调散",fun:"蔓荆子善于疏散头面部风热，传统上常用于风热所致的头痛和目赤。"},
+{id:82,name:"藁本",emoji:"\u{1F33F}",cat:"解表药",nature:"温",flavor:"辛",meridian:"膀胱",effect:"祛风散寒、除湿止痛",indication:"风寒感冒、巅顶头痛、风寒湿痹",formula:"羌活胜湿汤",fun:"藁本善治风寒所致的巅顶头痛，在传统应用中常与羌活等药配伍。"},
+{id:83,name:"夏枯草",emoji:"\u{1F33E}",cat:"清热药",nature:"寒",flavor:"辛、苦",meridian:"肝、胆",effect:"清肝泻火、明目、散结消肿",indication:"目赤肿痛、头痛眩晕、目珠夜痛、瘰疬、瘿瘤、乳痈",formula:"夏枯草汤",fun:"夏枯草常在夏季果穗枯黄时采收，名称也与这一生长特点有关。"},
+{id:84,name:"决明子",emoji:"\u{1F331}",cat:"清热药",nature:"微寒",flavor:"甘、苦、咸",meridian:"肝、大肠",effect:"清热明目、润肠通便",indication:"目赤涩痛、羞明多泪、头痛眩晕、目暗不明、肠燥便秘",formula:"决明子散",fun:"决明子之名含有使眼目清明之意，也是较常见的药食两用材料。"},
+{id:85,name:"苦参",emoji:"\u{1F33F}",cat:"清热药",nature:"寒",flavor:"苦",meridian:"心、肝、胃、大肠、膀胱",effect:"清热燥湿、杀虫、利尿",indication:"湿热泻痢、黄疸、带下、湿疹、湿疮、皮肤瘙痒、疥癣",formula:"苦参汤",fun:"苦参味道极苦，传统应用尤其重视其清热燥湿和杀虫止痒作用。"},
+{id:86,name:"白鲜皮",emoji:"\u{1F333}",cat:"清热药",nature:"寒",flavor:"苦",meridian:"脾、胃、膀胱",effect:"清热燥湿、祛风解毒",indication:"湿热疮毒、黄水淋漓、湿疹、风疹、疥癣、湿热黄疸",formula:"消风散",fun:"白鲜皮来源于植物的根皮，常用于湿热兼风所致的皮肤相关证候。"},
+{id:87,name:"大青叶",emoji:"\u{1F343}",cat:"清热药",nature:"寒",flavor:"苦",meridian:"心、胃",effect:"清热解毒、凉血消斑",indication:"温病高热、神昏、发斑发疹、喉痹、口疮、痄腮、丹毒",formula:"大青叶汤",fun:"大青叶与板蓝根在部分来源上关系密切，但入药部位不同，功效侧重点也有所区别。"},
+{id:88,name:"青黛",emoji:"\u{1F7E6}",cat:"清热药",nature:"寒",flavor:"咸",meridian:"肝",effect:"清热解毒、凉血消斑、清肝泻火、定惊",indication:"温毒发斑、血热吐衄、胸痛咳血、口疮、痄腮、喉痹、惊痫",formula:"青黛散",fun:"青黛是由含靛蓝成分的植物加工制成的深蓝色粉末，既是药材，也曾用于传统染色。"},
+{id:89,name:"鱼腥草",emoji:"\u{1F33F}",cat:"清热药",nature:"微寒",flavor:"辛",meridian:"肺",effect:"清热解毒、消痈排脓、利尿通淋",indication:"肺痈吐脓、痰热喘咳、热痢、热淋、痈肿疮毒",formula:"苇茎汤",fun:"鱼腥草揉碎后具有特殊气味，在西南地区也常作为具有地方特色的食材。"},
+{id:90,name:"射干",emoji:"\u{1F33A}",cat:"清热药",nature:"寒",flavor:"苦",meridian:"肺",effect:"清热解毒、消痰、利咽",indication:"咽喉肿痛、痰盛咳喘",formula:"射干麻黄汤",fun:"射干虽然名称中有“干”字，但这里是药名，并不是指经过干燥处理的普通植物。"},
+{id:91,name:"马齿苋",emoji:"\u{1F33F}",cat:"清热药",nature:"寒",flavor:"酸",meridian:"肝、大肠",effect:"清热解毒、凉血止血、止痢",indication:"热毒血痢、痈肿疔疮、湿疹、丹毒、便血、痔血",formula:"马齿苋汤",fun:"马齿苋生命力较强，是常见的药食两用植物，叶片形态被认为与马齿相似。"},
+{id:92,name:"白头翁",emoji:"\u{1F33C}",cat:"清热药",nature:"寒",flavor:"苦",meridian:"胃、大肠",effect:"清热解毒、凉血止痢",indication:"热毒血痢、里急后重、湿热泻痢",formula:"白头翁汤",fun:"白头翁的根头部常有白色茸毛，形似白发，因此得名。"},
+{id:93,name:"地骨皮",emoji:"\u{1F333}",cat:"清热药",nature:"寒",flavor:"甘",meridian:"肺、肝、肾",effect:"凉血除蒸、清肺降火、生津止渴",indication:"阴虚潮热、骨蒸盗汗、肺热咳嗽、血热出血、内热消渴",formula:"泻白散",fun:"地骨皮是枸杞植物的根皮，与枸杞子来自同类植物，但药用部位和功效不同。"},
+{id:94,name:"青蒿",emoji:"\u{1F33F}",cat:"清热药",nature:"寒",flavor:"苦、辛",meridian:"肝、胆",effect:"清虚热、除骨蒸、解暑热、截疟、退黄",indication:"温邪伤阴、夜热早凉、阴虚发热、暑热、疟疾寒热、湿热黄疸",formula:"青蒿鳖甲汤",fun:"从黄花蒿中发现的青蒿素，对现代抗疟药物研究产生了重要影响。"},
+{id:95,name:"胡黄连",emoji:"\u{1F33F}",cat:"清热药",nature:"寒",flavor:"苦",meridian:"肝、胃、大肠",effect:"退虚热、除疳热、清湿热",indication:"骨蒸潮热、小儿疳热、湿热泻痢、黄疸、痔疮肿痛",formula:"肥儿丸",fun:"胡黄连与黄连名称相近，但植物来源不同，传统功效的侧重点也不完全相同。"},
+{id:96,name:"银柴胡",emoji:"\u{1F33F}",cat:"清热药",nature:"微寒",flavor:"甘",meridian:"肝、胃",effect:"清虚热、除疳热",indication:"阴虚发热、骨蒸劳热、小儿疳热",formula:"清骨散",fun:"银柴胡与柴胡并非同一种药，银柴胡偏于清虚热，柴胡则偏于解表退热和疏肝。"},
+{id:97,name:"大黄",emoji:"\u{1F331}",cat:"泻下药",nature:"寒",flavor:"苦",meridian:"脾、胃、大肠、肝、心包",effect:"泻下攻积、清热泻火、凉血解毒、逐瘀通经、利湿退黄",indication:"实热积滞便秘、血热吐衄、目赤咽肿、痈肿疔疮、瘀血经闭、湿热黄疸",formula:"大承气汤",fun:"大黄有“将军”之称，取其攻下通腑、推陈致新的作用特点。"},
+{id:98,name:"芒硝",emoji:"\u{1FAA8}",cat:"泻下药",nature:"寒",flavor:"咸、苦",meridian:"胃、大肠",effect:"泻下通便、润燥软坚、清火消肿",indication:"实热积滞、大便燥结、咽痛、口疮、目赤、痈肿",formula:"大承气汤",fun:"芒硝属于矿物类药材，传统汤剂中通常采用溶化服用的方式，而不是长时间煎煮。"},
+{id:99,name:"番泻叶",emoji:"\u{1F343}",cat:"泻下药",nature:"寒",flavor:"甘、苦",meridian:"大肠",effect:"泻热行滞、通便、利水",indication:"热结积滞、便秘、腹水肿胀",formula:"番泻叶饮",fun:"番泻叶泻下作用较明显，传统应用强调控制用量和使用时间，不宜随意长期使用。"},
+{id:100,name:"火麻仁",emoji:"\u{1F331}",cat:"泻下药",nature:"平",flavor:"甘",meridian:"脾、胃、大肠",effect:"润肠通便",indication:"血虚津亏、肠燥便秘",formula:"麻子仁丸",fun:"火麻仁富含油脂，传统上常利用其质润多脂的特点治疗津亏肠燥便秘。"},
+{id:101,name:"郁李仁",emoji:"\u{1F330}",cat:"泻下药",nature:"平",flavor:"辛、苦、甘",meridian:"脾、大肠、小肠",effect:"润肠通便、利水消肿",indication:"津枯肠燥便秘、水肿胀满、脚气浮肿",formula:"五仁丸",fun:"郁李仁是蔷薇科植物的种仁，既能润肠，也具有一定利水消肿作用。"},
+{id:102,name:"独活",emoji:"\u{1F33F}",cat:"祛风湿药",nature:"微温",flavor:"辛、苦",meridian:"肾、膀胱",effect:"祛风除湿、通痹止痛、解表",indication:"风寒湿痹、腰膝疼痛、少阴头痛、风寒挟湿表证",formula:"独活寄生汤",fun:"传统上常说羌活偏治上半身风湿疼痛，独活则更常用于腰膝及下半身风寒湿痹。"}
+
 ];
 
 // ===== FORMULAS DATABASE (16 formulas) =====
