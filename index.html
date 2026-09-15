@@ -56,8 +56,16 @@ body{
   font-family:var(--font-body);
   line-height:1.7;
   background:
-    radial-gradient(circle at 10% 10%,rgba(82,122,82,.07),transparent 30%),
-    radial-gradient(circle at 90% 15%,rgba(185,74,53,.05),transparent 32%),
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(82,122,82,.07),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 90% 15%,
+      rgba(185,74,53,.05),
+      transparent 32%
+    ),
     var(--paper);
 }
 
@@ -76,7 +84,7 @@ button{
 }
 
 button:hover{
-  color:#fff;
+  color:#FFFFFF;
   background:var(--ink);
   box-shadow:0 0 0 4px rgba(47,49,45,.08);
 }
@@ -91,7 +99,7 @@ button:disabled{
 }
 
 button.primary{
-  color:#fff;
+  color:#FFFFFF;
   border-color:var(--vermilion);
   background:var(--vermilion);
 }
@@ -107,7 +115,7 @@ button.secondary{
 }
 
 button.secondary:hover{
-  color:#fff;
+  color:#FFFFFF;
   background:var(--green);
 }
 
@@ -117,7 +125,7 @@ button.danger{
 }
 
 button.danger:hover{
-  color:#fff;
+  color:#FFFFFF;
   background:var(--error);
 }
 
@@ -152,25 +160,57 @@ h1,h2,h3,h4{
 }
 
 @keyframes fadeIn{
-  from{opacity:0;transform:translateY(8px)}
-  to{opacity:1;transform:translateY(0)}
+  from{
+    opacity:0;
+    transform:translateY(8px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
 }
 
 @keyframes shake{
-  0%,100%{transform:translateX(0)}
-  25%{transform:translateX(-6px)}
-  50%{transform:translateX(6px)}
-  75%{transform:translateX(-4px)}
+  0%,100%{
+    transform:translateX(0);
+  }
+
+  25%{
+    transform:translateX(-6px);
+  }
+
+  50%{
+    transform:translateX(6px);
+  }
+
+  75%{
+    transform:translateX(-4px);
+  }
 }
 
 @keyframes popIn{
-  from{opacity:0;transform:scale(.94)}
-  to{opacity:1;transform:scale(1)}
+  from{
+    opacity:0;
+    transform:scale(.94);
+  }
+
+  to{
+    opacity:1;
+    transform:scale(1);
+  }
 }
 
 @keyframes comboFloat{
-  0%{opacity:1;transform:translateY(0) scale(1)}
-  100%{opacity:0;transform:translateY(-45px) scale(1.25)}
+  0%{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+
+  100%{
+    opacity:0;
+    transform:translateY(-45px) scale(1.25);
+  }
 }
 
 .shake{
@@ -251,7 +291,7 @@ h1,h2,h3,h4{
   display:flex;
   justify-content:center;
   gap:24px;
-  margin-bottom:22px;
+  margin-bottom:20px;
   padding:12px 16px;
   border-radius:var(--radius);
   background:var(--paper-dark);
@@ -270,6 +310,183 @@ h1,h2,h3,h4{
   color:var(--gold);
   font-family:var(--font-title);
   font-size:1.08rem;
+}
+
+/* ============================================================
+   难度选择
+   ============================================================ */
+
+.difficulty-panel{
+  margin:18px 0 24px;
+  padding:18px;
+  border:1px solid var(--paper-deep);
+  border-radius:var(--radius);
+  background:rgba(255,253,248,.82);
+  box-shadow:var(--shadow);
+}
+
+.difficulty-heading{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  margin-bottom:14px;
+}
+
+.difficulty-heading h2{
+  font-size:1.18rem;
+}
+
+.difficulty-heading p{
+  margin-top:3px;
+  color:var(--ink-light);
+  font-size:.8rem;
+}
+
+.difficulty-current{
+  flex-shrink:0;
+  padding:5px 12px;
+  border-radius:20px;
+  color:var(--vermilion);
+  background:var(--paper-dark);
+  font-family:var(--font-title);
+  font-size:.9rem;
+  white-space:nowrap;
+}
+
+.difficulty-options{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+}
+
+.difficulty-button{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  min-height:110px;
+  padding:10px 7px;
+  border-color:var(--paper-deep);
+  font-family:var(--font-body);
+  letter-spacing:0;
+  text-align:center;
+}
+
+.difficulty-button:hover{
+  color:var(--ink);
+  border-color:var(--green);
+  background:var(--green-light);
+}
+
+.difficulty-button.active{
+  color:#FFFFFF;
+  border-color:var(--green);
+  background:var(--green);
+  box-shadow:0 0 0 4px rgba(82,122,82,.12);
+}
+
+.difficulty-button.active:hover{
+  color:#FFFFFF;
+  background:var(--green);
+}
+
+.difficulty-icon{
+  display:block;
+  margin-bottom:3px;
+  font-size:1.45rem;
+}
+
+.difficulty-button strong{
+  display:block;
+  font-family:var(--font-title);
+  font-size:1rem;
+  font-weight:400;
+}
+
+.difficulty-button small{
+  display:block;
+  margin-top:3px;
+  opacity:.82;
+  font-size:.7rem;
+  line-height:1.45;
+}
+
+.difficulty-pool-info{
+  margin-top:12px;
+  padding-top:10px;
+  border-top:1px dashed var(--paper-deep);
+  color:var(--ink-light);
+  font-size:.78rem;
+  text-align:center;
+}
+
+.game-difficulty-label{
+  display:inline-block;
+  margin-left:5px;
+  padding:1px 7px;
+  border-radius:12px;
+  color:var(--green);
+  background:var(--green-light);
+  font-family:var(--font-body);
+  font-size:.68rem;
+  letter-spacing:0;
+  vertical-align:middle;
+}
+
+/* 难度选择 */
+.difficulty-panel{
+  margin:0 0 22px;
+  padding:15px;
+  border:1px solid var(--paper-deep);
+  border-radius:var(--radius);
+  background:rgba(255,253,248,.72);
+  text-align:center;
+}
+
+.difficulty-title{
+  margin-bottom:10px;
+  font-family:var(--font-title);
+  font-size:1.05rem;
+  letter-spacing:.08em;
+}
+
+.difficulty-buttons{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+
+.difficulty-button{
+  min-height:44px;
+  padding:7px 10px;
+  border-color:var(--paper-deep);
+  font-size:.9rem;
+}
+
+.difficulty-button:hover{
+  color:var(--ink);
+  border-color:var(--vermilion);
+  background:var(--paper-dark);
+}
+
+.difficulty-button.active{
+  color:#fff;
+  border-color:var(--vermilion);
+  background:var(--vermilion);
+  box-shadow:0 0 0 3px rgba(185,74,53,.1);
+}
+
+.difficulty-description{
+  margin-top:9px;
+  color:var(--ink-light);
+  font-size:.78rem;
+}
+
+@media(max-width:390px){
+  .difficulty-buttons{
+    grid-template-columns:1fr;
+  }
 }
 
 .mode-grid{
@@ -539,7 +756,7 @@ h1,h2,h3,h4{
 }
 
 .herb-chip.selected{
-  color:#fff;
+  color:#FFFFFF;
   border-color:var(--ink);
   background:var(--ink);
 }
@@ -670,7 +887,7 @@ h1,h2,h3,h4{
   border-radius:var(--radius);
   background:var(--white);
   cursor:pointer;
-  font-size:.1rem;
+  font-size:.86rem;
   line-height:1.45;
   text-align:center;
   word-break:break-word;
@@ -682,7 +899,7 @@ h1,h2,h3,h4{
 }
 
 .match-cell.selected{
-  color:#fff;
+  color:#FFFFFF;
   border-color:var(--ink);
   background:var(--ink);
 }
@@ -760,6 +977,16 @@ h1,h2,h3,h4{
   font-size:1.15rem;
 }
 
+.result-difficulty{
+  display:inline-block;
+  margin-bottom:10px;
+  padding:4px 12px;
+  border-radius:18px;
+  color:var(--green);
+  background:var(--green-light);
+  font-size:.8rem;
+}
+
 .result-stats{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -821,7 +1048,7 @@ h1,h2,h3,h4{
 }
 
 .category-filter button.active{
-  color:#fff;
+  color:#FFFFFF;
   background:var(--ink);
 }
 
@@ -864,6 +1091,7 @@ h1,h2,h3,h4{
 }
 
 .herb-cat{
+  margin-bottom:4px;
   color:var(--ink-light);
   font-size:.73rem;
 }
@@ -899,7 +1127,8 @@ h1,h2,h3,h4{
   margin:2px;
   padding:2px 9px;
   border-radius:4px;
-  font-size:.73rem;
+  font-size:.73
+rem;
 }
 
 .badge-cold{
@@ -925,6 +1154,35 @@ h1,h2,h3,h4{
 .badge-green{
   color:var(--green);
   background:var(--green-light);
+}
+
+.badge-level-1{
+  color:var(--green);
+  background:var(--green-light);
+}
+
+.badge-level-2{
+  color:var(--blue);
+  background:rgba(88,121,151,.14);
+}
+
+.badge-level-3{
+  color:var(--vermilion);
+  background:rgba(185,74,53,.14);
+}
+
+.leaderboard-difficulty{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  margin:14px 0;
+}
+
+.leaderboard-difficulty button.active{
+  color:#FFFFFF;
+  border-color:var(--green);
+  background:var(--green);
 }
 
 .lb-list{
@@ -1031,7 +1289,7 @@ h1,h2,h3,h4{
   .match-cell{
     min-height:86px;
     padding:6px;
-    font-size:.88rem;
+    font-size:.82rem;
     line-height:1.4;
   }
 
@@ -1042,6 +1300,34 @@ h1,h2,h3,h4{
   .header button{
     padding:4px 9px;
     font-size:.8rem;
+  }
+}
+
+@media(max-width:520px){
+  .difficulty-heading{
+    align-items:flex-start;
+  }
+
+  .difficulty-options{
+    grid-template-columns:1fr;
+  }
+
+  .difficulty-button{
+    flex-direction:row;
+    justify-content:flex-start;
+    min-height:58px;
+    gap:9px;
+    padding:9px 14px;
+    text-align:left;
+  }
+
+  .difficulty-icon{
+    margin:0;
+  }
+
+  .difficulty-button small{
+    margin:0 0 0 auto;
+    text-align:right;
   }
 }
 
@@ -1063,7 +1349,21 @@ h1,h2,h3,h4{
   }
 
   .home-profile{
-    gap:12px;
+    gap:10px;
+    padding-right:8px;
+    padding-left:8px;
+  }
+
+  .profile-label{
+    font-size:.7rem;
+  }
+
+  .profile-value{
+    font-size:.95rem;
+  }
+
+  .difficulty-heading{
+    flex-direction:column;
   }
 }
 </style>
@@ -1088,63 +1388,217 @@ h1,h2,h3,h4{
     <div class="home-profile">
       <div class="profile-item">
         <div class="profile-label">当前称号</div>
-        <div class="profile-value" id="home-title-name">初入杏林</div>
+        <div class="profile-value" id="home-title-name">
+          初入杏林
+        </div>
       </div>
 
       <div class="profile-item">
         <div class="profile-label">医道积分</div>
-        <div class="profile-value" id="home-score">0</div>
+        <div class="profile-value" id="home-score">
+          0
+        </div>
       </div>
 
       <div class="profile-item">
         <div class="profile-label">已收集药材</div>
-        <div class="profile-value" id="home-unlocked">0/--</div>
+        <div class="profile-value" id="home-unlocked">
+          0/500
+        </div>
       </div>
     </div>
 
+    <!-- 难度选择 -->
+    <div class="difficulty-panel">
+      <div class="difficulty-heading">
+        <div>
+          <h2>选择研习难度</h2>
+          <p id="difficulty-description">
+            常见基础药与基础方剂
+          </p>
+        </div>
+
+        <div
+          class="difficulty-current"
+          id="difficulty-current"
+        >
+          🌱 初学
+        </div>
+      </div>
+
+      <div class="difficulty-options">
+        <button
+          type="button"
+          class="difficulty-button active"
+          data-difficulty="beginner"
+          onclick="App.setDifficulty('beginner')"
+        >
+          <span class="difficulty-icon">🌱</span>
+          <strong>初学模式</strong>
+          <small>约180味基础药</small>
+        </button>
+
+        <button
+          type="button"
+          class="difficulty-button"
+          data-difficulty="intermediate"
+          onclick="App.setDifficulty('intermediate')"
+        >
+          <span class="difficulty-icon">📘</span>
+          <strong>进阶模式</strong>
+          <small>约350味常用药</small>
+        </button>
+
+        <button
+          type="button"
+          class="difficulty-button"
+          data-difficulty="challenge"
+          onclick="App.setDifficulty('challenge')"
+        >
+          <span class="difficulty-icon">🔥</span>
+          <strong>挑战模式</strong>
+          <small>全部500味药材</small>
+        </button>
+      </div>
+
+      <div
+        class="difficulty-pool-info"
+        id="difficulty-pool-info"
+      >
+        正在统计当前难度题库……
+      </div>
+    </div>
+<div class="difficulty-panel">
+  <div class="difficulty-title">选择游戏难度</div>
+
+  <div class="difficulty-buttons">
+    <button
+      type="button"
+      class="difficulty-button"
+      data-difficulty="beginner"
+      onclick="App.setDifficulty('beginner')"
+    >
+      🌱 初学
+    </button>
+
+    <button
+      type="button"
+      class="difficulty-button"
+      data-difficulty="intermediate"
+      onclick="App.setDifficulty('intermediate')"
+    >
+      📘 进阶
+    </button>
+
+    <button
+      type="button"
+      class="difficulty-button"
+      data-difficulty="challenge"
+      onclick="App.setDifficulty('challenge')"
+    >
+      🔥 挑战
+    </button>
+  </div>
+
+  <div
+    class="difficulty-description"
+    id="difficulty-description"
+  >
+    🌱 题量较少，答题时间充足
+  </div>
+</div>
+
+
     <div class="mode-grid">
-      <div class="mode-card" onclick="App.startGame('identify')">
+      <div
+        class="mode-card"
+        onclick="App.startGame('identify')"
+      >
         <span class="mode-icon">🌿</span>
         <div class="mode-name">辨药识材</div>
-        <div class="mode-desc">根据性味、功效等线索辨认药材</div>
+        <div class="mode-desc">
+          根据性味、功效等线索辨认药材
+        </div>
       </div>
 
-      <div class="mode-card" onclick="App.startGame('formula')">
+      <div
+        class="mode-card"
+        onclick="App.startGame('formula')"
+      >
         <span class="mode-icon">📜</span>
         <div class="mode-name">组方配伍</div>
-        <div class="mode-desc">从药材池中选出经典方剂组成</div>
+        <div class="mode-desc">
+          从药材池中选出经典方剂组成
+        </div>
       </div>
 
-      <div class="mode-card" onclick="App.startGame('classify')">
+      <div
+        class="mode-card"
+        onclick="App.startGame('classify')"
+      >
         <span class="mode-icon">⚖️</span>
         <div class="mode-name">四性五味</div>
-        <div class="mode-desc">判断中药的药性与药味</div>
+        <div class="mode-desc">
+          判断中药的药性与药味
+        </div>
       </div>
 
-      <div class="mode-card" onclick="App.startGame('prescribe')">
+      <div
+        class="mode-card"
+        onclick="App.startGame('prescribe')"
+      >
         <span class="mode-icon">🩺</span>
         <div class="mode-name">对症开方</div>
-        <div class="mode-desc">根据模拟情境选择经典方剂</div>
+        <div class="mode-desc">
+          根据模拟情境选择经典方剂
+        </div>
       </div>
 
-      <div class="mode-card" onclick="App.startGame('match')">
+      <div
+        class="mode-card"
+        onclick="App.startGame('match')"
+      >
         <span class="mode-icon">🔗</span>
         <div class="mode-name">药材连连看</div>
-        <div class="mode-desc">配对药材名称与代表性功效</div>
+        <div class="mode-desc">
+          配对药材名称与代表性功效
+        </div>
       </div>
 
-      <div class="mode-card" onclick="App.showScreen('encyclopedia')">
+      <div
+        class="mode-card"
+        onclick="App.showScreen('encyclopedia')"
+      >
         <span class="mode-icon">📖</span>
         <div class="mode-name">百草图鉴</div>
-        <div class="mode-desc">查阅已经解锁的本草知识</div>
+        <div class="mode-desc">
+          查阅已经解锁的本草知识
+        </div>
       </div>
     </div>
 
     <div class="home-nav">
-      <button onclick="App.showScreen('wrongbook')">📕 错题复习</button>
-      <button onclick="App.showScreen('leaderboard')">🏆 我的成绩</button>
-      <button onclick="App.toggleSound()" id="sound-button">🔊 音效开启</button>
-      <button class="danger" onclick="App.resetProgress()">重置进度</button>
+      <button onclick="App.showScreen('wrongbook')">
+        📕 错题复习
+      </button>
+
+      <button onclick="App.showScreen('leaderboard')">
+        🏆 我的成绩
+      </button>
+
+      <button
+        onclick="App.toggleSound()"
+        id="sound-button"
+      >
+        🔊 音效开启
+      </button>
+
+      <button
+        class="danger"
+        onclick="App.resetProgress()"
+      >
+        重置进度
+      </button>
     </div>
 
     <div class="notice">
@@ -1156,19 +1610,41 @@ h1,h2,h3,h4{
   <!-- 游戏页 -->
   <section id="screen-game" class="screen">
     <div class="header">
-      <button onclick="App.leaveGame()">← 返回</button>
-      <h1 id="game-title">游戏</h1>
-      <div class="score-display">⭐ <span id="game-score">0</span></div>
+      <button onclick="App.leaveGame()">
+        ← 返回
+      </button>
+
+      <h1 id="game-title">
+        游戏
+      </h1>
+
+      <div class="score-display">
+        ⭐ <span id="game-score">0</span>
+      </div>
     </div>
 
     <div class="game-header">
-      <span class="progress" id="game-progress"></span>
-      <span class="timer" id="game-timer"></span>
-      <span class="combo" id="game-combo"></span>
+      <span
+        class="progress"
+        id="game-progress"
+      ></span>
+
+      <span
+        class="timer"
+        id="game-timer"
+      ></span>
+
+      <span
+        class="combo"
+        id="game-combo"
+      ></span>
     </div>
 
     <div class="timer-bar">
-      <div class="timer-bar-inner" id="timer-bar-inner"></div>
+      <div
+        class="timer-bar-inner"
+        id="timer-bar-inner"
+      ></div>
     </div>
 
     <div id="game-content"></div>
@@ -1177,24 +1653,43 @@ h1,h2,h3,h4{
   <!-- 百草图鉴 -->
   <section id="screen-encyclopedia" class="screen">
     <div class="header">
-      <button onclick="App.showScreen('home')">← 返回</button>
+      <button onclick="App.showScreen('home')">
+        ← 返回
+      </button>
+
       <h1>百草图鉴</h1>
-      <div class="score-display">⭐ <span id="ency-score">0</span></div>
+
+      <div class="score-display">
+        ⭐ <span id="ency-score">0</span>
+      </div>
     </div>
 
     <div class="ency-progress">
-      <span class="count" id="ency-count">0/--</span>
+      <span
+        class="count"
+        id="ency-count"
+      >
+        0/500
+      </span>
+
       <p>已收集药材</p>
     </div>
 
-    <div class="category-filter" id="ency-filter"></div>
+    <div
+      class="category-filter"
+      id="ency-filter"
+    ></div>
+
     <div id="ency-content"></div>
   </section>
 
   <!-- 错题本 -->
   <section id="screen-wrongbook" class="screen">
     <div class="header">
-      <button onclick="App.showScreen('home')">← 返回</button>
+      <button onclick="App.showScreen('home')">
+        ← 返回
+      </button>
+
       <h1>错题复习</h1>
       <div class="header-placeholder"></div>
     </div>
@@ -1205,7 +1700,10 @@ h1,h2,h3,h4{
   <!-- 成绩页 -->
   <section id="screen-leaderboard" class="screen">
     <div class="header">
-      <button onclick="App.showScreen('home')">← 返回</button>
+      <button onclick="App.showScreen('home')">
+        ← 返回
+      </button>
+
       <h1>我的成绩</h1>
       <div class="header-placeholder"></div>
     </div>
@@ -1215,6 +1713,59 @@ h1,h2,h3,h4{
 
 </div>
 
-<script src="./game.js?v=83"></script>
+<!-- 修改版本号可避免浏览器继续加载旧版缓存 -->
+<!-- 本草堂知识库：必须先于游戏逻辑加载 -->
+<script src="./herbs.js?v=1"></script>
+<script src="./formulas.js?v=1"></script>
+<script src="./scenarios.js?v=1"></script>
+
+<!-- 检查知识库是否成功加载 -->
+<script>
+(function () {
+  const missing = [];
+
+  if (!Array.isArray(globalThis.HERBS)) {
+    missing.push("herbs.js");
+  }
+
+  if (!Array.isArray(globalThis.FORMULAS)) {
+    missing.push("formulas.js");
+  }
+
+  if (!Array.isArray(globalThis.SCENARIOS)) {
+    missing.push("scenarios.js");
+  }
+
+  if (missing.length > 0) {
+    console.error("知识库加载失败：", missing);
+
+    const notice = document.createElement("div");
+    notice.style.cssText =
+      "margin:16px;padding:16px;border:1px solid #B94A35;" +
+      "border-radius:8px;background:#FFF4F0;color:#913825;" +
+      "font-size:14px;line-height:1.8;";
+
+    notice.textContent =
+      "知识库未能完整加载：" + missing.join("、") +
+      "。请检查这些文件是否与 index.html 位于同一文件夹，" +
+      "并确认已经上传。若文件存在，请查看浏览器控制台中的第一条报错。";
+
+    const target = document.getElementById("screen-home") || document.body;
+    target.prepend(notice);
+  }
+})();
+</script>
+
+<!-- 游戏逻辑：放在三个知识库之后 -->
+<script src="./game.js?v=102"></script>
+
+
+<script
+  type="module"
+  src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495"
+  integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg=="
+  data-cf-beacon='{"version":"2024.11.0","token":"da6a41f784d647c2a7d9a76e1661d40b","r":1,"spa":2}'
+  crossorigin="anonymous"
+></script>
 </body>
 </html>

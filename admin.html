@@ -23,6 +23,9 @@
   --primary:#B94A35;
   --primary-dark:#913825;
   --green:#527A52;
+  --blue:#587997;
+  --orange:#C57D43;
+  --gold:#A67C18;
   --paper:#F6F1E8;
   --white:#FFFFFF;
   --text:#333333;
@@ -51,7 +54,7 @@ button{
 
 .container{
   width:100%;
-  max-width:1200px;
+  max-width:1250px;
   margin:0 auto;
 }
 
@@ -95,7 +98,8 @@ button{
 
 .stats-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  grid-template-columns:
+    repeat(auto-fit,minmax(190px,1fr));
   gap:16px;
   margin-bottom:24px;
 }
@@ -145,26 +149,53 @@ button{
   font-size:18px;
 }
 
-.mode-stats{
+.section-note{
+  margin:-7px 0 14px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.mode-stats,
+.difficulty-stats{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  grid-template-columns:
+    repeat(auto-fit,minmax(190px,1fr));
   gap:14px;
 }
 
-.mode-card{
+.mode-card,
+.difficulty-card{
   padding:15px;
   border:1px solid var(--border);
   border-radius:8px;
   background:#FAFAF8;
 }
 
-.mode-card h4{
+.mode-card h4,
+.difficulty-card h4{
   margin-bottom:9px;
   color:var(--primary);
   font-size:15px;
 }
 
-.mode-card .stat{
+.difficulty-card.beginner h4{
+  color:var(--green);
+}
+
+.difficulty-card.intermediate h4{
+  color:var(--blue);
+}
+
+.difficulty-card.challenge h4{
+  color:var(--primary);
+}
+
+.difficulty-card.unknown h4{
+  color:var(--muted);
+}
+
+.mode-card .stat,
+.difficulty-card .stat{
   display:flex;
   justify-content:space-between;
   gap:10px;
@@ -172,12 +203,24 @@ button{
   font-size:13px;
 }
 
-.mode-card .stat span:first-child{
+.mode-card .stat span:first-child,
+.difficulty-card .stat span:first-child{
   color:var(--muted);
 }
 
-.mode-card .stat span:last-child{
+.mode-card .stat span:last-child,
+.difficulty-card .stat span:last-child{
   font-weight:bold;
+}
+
+.compatibility-note{
+  padding:14px;
+  border:1px dashed var(--border);
+  border-radius:8px;
+  color:var(--muted);
+  background:#FAFAF8;
+  font-size:13px;
+  text-align:center;
 }
 
 .table-wrapper{
@@ -187,7 +230,7 @@ button{
 
 table{
   width:100%;
-  min-width:720px;
+  min-width:850px;
   border-collapse:collapse;
   font-size:13px;
 }
@@ -244,6 +287,26 @@ tbody tr:hover{
 
 .badge-unknown{
   color:#555555;
+  background:#EEEEEE;
+}
+
+.badge-beginner{
+  color:#2E6D32;
+  background:#E4F2E2;
+}
+
+.badge-intermediate{
+  color:#356784;
+  background:#E2EEF5;
+}
+
+.badge-challenge{
+  color:#A13D2C;
+  background:#F5E3DF;
+}
+
+.badge-unrecorded{
+  color:#666666;
   background:#EEEEEE;
 }
 
@@ -320,7 +383,8 @@ tbody tr:hover{
   }
 
   .stats-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-columns:
+      repeat(2,minmax(0,1fr));
     gap:10px;
   }
 
@@ -347,8 +411,9 @@ tbody tr:hover{
   <header class="page-header">
     <div>
       <h1>本草堂 - 游戏数据统计</h1>
+
       <p class="page-subtitle">
-        查看游戏平台整体运行情况及各模式参与数据
+        查看游戏平台整体运行情况、各模式参与数据及难度分布
       </p>
     </div>
 
@@ -362,7 +427,9 @@ tbody tr:hover{
   </header>
 
   <main id="content">
-    <div class="loading">正在加载统计数据……</div>
+    <div class="loading">
+      正在加载统计数据……
+    </div>
   </main>
 
   <footer class="footer">
@@ -375,14 +442,14 @@ tbody tr:hover{
 "use strict";
 
 /*
- * 统计接口地址
+ * 统计接口地址。
  * 如果以后更换后台接口，只需要修改此处。
  */
 const API_URL =
   "https://br-peppy-grue-dfccd1b7.supabase2.aidap-global.cn-beijing.volces.com/functions/v1/game-stats-api";
 
 /*
- * 五种游戏模式的名称
+ * 五种游戏模式名称。
  */
 const MODE_NAMES = {
   identify: "辨药识材",
@@ -401,14 +468,35 @@ const MODE_KEYS = [
 ];
 
 /*
- * 获取页面元素
+ * 难度名称。
  */
+const DIFFICULTY_NAMES = {
+  beginner: "初学",
+  intermediate: "进阶",
+  challenge: "挑战",
+  unrecorded: "未记录"
+};
+
+const DIFFICULTY_ICONS = {
+  beginner: "🌱",
+  intermediate: "📘",
+  challenge: "🔥",
+  unrecorded: "—"
+};
+
+const DIFFICULTY_KEYS = [
+  "beginner",
+  "intermediate",
+  "challenge",
+  "unrecorded"
+];
+
 function getElement(id) {
   return document.getElementById(id);
 }
 
 /*
- * 转义接口返回的文本，防止特殊字符影响页面。
+ * 转义接口返回文本。
  */
 function escapeHtml(value) {
   return String(value ?? "")
@@ -419,25 +507,17 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
-/*
- * 将数值转换为安全数字。
- */
 function toNumber(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number : 0;
 }
 
-/*
- * 格式化整数。
- */
 function formatNumber(value) {
-  return Math.round(toNumber(value)).toLocaleString("zh-CN");
+  return Math.round(
+    toNumber(value)
+  ).toLocaleString("zh-CN");
 }
 
-/*
- * 格式化平均分。
- * 保留一位小数，但整数不显示小数点。
- */
 function formatAverage(value) {
   const number = toNumber(value);
   const rounded = Math.round(number * 10) / 10;
@@ -447,9 +527,6 @@ function formatAverage(value) {
     : rounded.toFixed(1);
 }
 
-/*
- * 格式化日期。
- */
 function formatDate(value) {
   if (!value) {
     return "未知";
@@ -474,12 +551,6 @@ function formatDate(value) {
 
 /*
  * IP地址脱敏。
- *
- * IPv4示例：
- * 192.168.1.25 → 192.168.*.*
- *
- * IPv6示例：
- * 2408:xxxx:xxxx:xxxx → 2408:xxxx:****:****
  */
 function maskIp(ipAddress) {
   if (!ipAddress) {
@@ -492,9 +563,6 @@ function maskIp(ipAddress) {
     return "匿名用户";
   }
 
-  /*
-   * IPv4
-   */
   if (ip.includes(".")) {
     const parts = ip.split(".");
 
@@ -508,22 +576,21 @@ function maskIp(ipAddress) {
     }
   }
 
-  /*
-   * IPv6
-   */
   if (ip.includes(":")) {
-    const parts = ip.split(":").filter(Boolean);
+    const parts = ip
+      .split(":")
+      .filter(Boolean);
 
     if (parts.length >= 2) {
-      return parts.slice(0, 2).join(":") + ":****:****";
+      return (
+        parts.slice(0, 2).join(":") +
+        ":****:****"
+      );
     }
 
     return ip.slice(0, 4) + "****";
   }
 
-  /*
-   * 无法判断格式时，仅保留前两位。
-   */
   if (ip.length <= 2) {
     return "**";
   }
@@ -531,16 +598,10 @@ function maskIp(ipAddress) {
   return ip.slice(0, 2) + "****";
 }
 
-/*
- * 获取模式中文名称。
- */
 function getModeName(mode) {
   return MODE_NAMES[mode] || "未知模式";
 }
 
-/*
- * 获取模式标签样式。
- */
 function getModeBadgeClass(mode) {
   return MODE_NAMES[mode]
     ? "badge-" + mode
@@ -548,9 +609,66 @@ function getModeBadgeClass(mode) {
 }
 
 /*
- * 返回一个空的模式统计对象。
+ * 兼容多种可能的难度字段值。
  */
-function createEmptyModeStats() {
+function normalizeDifficulty(value) {
+  const difficulty = String(value || "")
+    .trim()
+    .toLowerCase();
+
+  if (
+    difficulty === "beginner" ||
+    difficulty === "1" ||
+    difficulty === "初学" ||
+    difficulty === "初学模式"
+  ) {
+    return "beginner";
+  }
+
+  if (
+    difficulty === "intermediate" ||
+    difficulty === "2" ||
+    difficulty === "进阶" ||
+    difficulty === "进阶模式"
+  ) {
+    return "intermediate";
+  }
+
+  if (
+    difficulty === "challenge" ||
+    difficulty === "3" ||
+    difficulty === "挑战" ||
+    difficulty === "挑战模式"
+  ) {
+    return "challenge";
+  }
+
+  return "unrecorded";
+}
+
+function getDifficultyName(value) {
+  const difficulty = normalizeDifficulty(value);
+
+  return (
+    DIFFICULTY_NAMES[difficulty] ||
+    DIFFICULTY_NAMES.unrecorded
+  );
+}
+
+function getDifficultyIcon(value) {
+  const difficulty = normalizeDifficulty(value);
+
+  return (
+    DIFFICULTY_ICONS[difficulty] ||
+    DIFFICULTY_ICONS.unrecorded
+  );
+}
+
+function getDifficultyBadgeClass(value) {
+  return "badge-" + normalizeDifficulty(value);
+}
+
+function createEmptyStats() {
   return {
     count: 0,
     total_score: 0,
@@ -559,24 +677,41 @@ function createEmptyModeStats() {
   };
 }
 
+function normalizeSummaryItem(item) {
+  const source = item || {};
+
+  return {
+    count: toNumber(source.count),
+    total_score: toNumber(source.total_score),
+    avg_score: toNumber(source.avg_score),
+    max_score: toNumber(source.max_score)
+  };
+}
+
 /*
  * 对接口数据进行整理。
- * 避免接口缺少某个字段时页面报错。
  */
 function normalizeStats(rawStats) {
   const source = rawStats || {};
   const byModeSource = source.by_mode || {};
+  const byDifficultySource =
+    source.by_difficulty || {};
+
   const byMode = {};
+  const byDifficulty = {};
 
   MODE_KEYS.forEach(function(mode) {
-    const item = byModeSource[mode] || createEmptyModeStats();
+    byMode[mode] = normalizeSummaryItem(
+      byModeSource[mode] || createEmptyStats()
+    );
+  });
 
-    byMode[mode] = {
-      count: toNumber(item.count),
-      total_score: toNumber(item.total_score),
-      avg_score: toNumber(item.avg_score),
-      max_score: toNumber(item.max_score)
-    };
+  DIFFICULTY_KEYS.forEach(function(difficulty) {
+    byDifficulty[difficulty] =
+      normalizeSummaryItem(
+        byDifficultySource[difficulty] ||
+        createEmptyStats()
+      );
   });
 
   return {
@@ -584,6 +719,13 @@ function normalizeStats(rawStats) {
     unique_ips: toNumber(source.unique_ips),
     total_score: toNumber(source.total_score),
     by_mode: byMode,
+    by_difficulty: byDifficulty,
+    has_difficulty_summary:
+      Boolean(
+        source.by_difficulty &&
+        typeof source.by_difficulty === "object" &&
+        Object.keys(source.by_difficulty).length
+      ),
     recent: Array.isArray(source.recent)
       ? source.recent
       : []
@@ -591,17 +733,56 @@ function normalizeStats(rawStats) {
 }
 
 /*
- * 加载统计数据。
+ * 若接口尚未返回by_difficulty，
+ * 尝试使用recent记录生成一个“最近记录难度分布”。
  */
+function calculateRecentDifficultyStats(records) {
+  const result = {};
+
+  DIFFICULTY_KEYS.forEach(function(key) {
+    result[key] = createEmptyStats();
+  });
+
+  records.forEach(function(record) {
+    const key = normalizeDifficulty(
+      record.difficulty ||
+      record.difficulty_name
+    );
+
+    const score = toNumber(record.score);
+
+    result[key].count += 1;
+    result[key].total_score += score;
+    result[key].max_score = Math.max(
+      result[key].max_score,
+      score
+    );
+  });
+
+  DIFFICULTY_KEYS.forEach(function(key) {
+    const item = result[key];
+
+    item.avg_score =
+      item.count > 0
+        ? item.total_score / item.count
+        : 0;
+  });
+
+  return result;
+}
+
 async function loadStats() {
   const content = getElement("content");
-  const refreshButton = getElement("refresh-button");
+  const refreshButton =
+    getElement("refresh-button");
 
   refreshButton.disabled = true;
   refreshButton.textContent = "正在刷新……";
 
   content.innerHTML =
-    '<div class="loading">正在加载统计数据……</div>';
+    '<div class="loading">' +
+    "正在加载统计数据……" +
+    "</div>";
 
   try {
     const response = await fetch(API_URL, {
@@ -614,7 +795,8 @@ async function loadStats() {
 
     if (!response.ok) {
       throw new Error(
-        "接口请求失败，状态码：" + response.status
+        "接口请求失败，状态码：" +
+        response.status
       );
     }
 
@@ -632,26 +814,40 @@ async function loadStats() {
 
     renderStats(stats);
   } catch (error) {
-    console.error("加载统计数据失败：", error);
+    console.error(
+      "加载统计数据失败：",
+      error
+    );
 
     content.innerHTML = `
       <div class="section">
         <div class="error">
           <p>统计数据加载失败</p>
+
           <p style="margin-top:6px;font-size:13px">
-            ${escapeHtml(error.message || "未知错误")}
+            ${escapeHtml(
+              error.message || "未知错误"
+            )}
           </p>
-          <button type="button" id="retry-button">
+
+          <button
+            type="button"
+            id="retry-button"
+          >
             重新加载
           </button>
         </div>
       </div>
     `;
 
-    const retryButton = getElement("retry-button");
+    const retryButton =
+      getElement("retry-button");
 
     if (retryButton) {
-      retryButton.addEventListener("click", loadStats);
+      retryButton.addEventListener(
+        "click",
+        loadStats
+      );
     }
   } finally {
     refreshButton.disabled = false;
@@ -659,9 +855,81 @@ async function loadStats() {
   }
 }
 
-/*
- * 渲染统计页面。
- */
+function renderDifficultyCards(
+  difficultyStats,
+  summaryType
+) {
+  let html = `
+    <div class="difficulty-stats">
+  `;
+
+  DIFFICULTY_KEYS.forEach(function(key) {
+    const item =
+      difficultyStats[key] ||
+      createEmptyStats();
+
+    /*
+     * 没有旧版记录时，不单独显示“未记录”卡片。
+     */
+    if (
+      key === "unrecorded" &&
+      item.count === 0
+    ) {
+      return;
+    }
+
+    html += `
+      <div class="difficulty-card ${escapeHtml(key)}">
+        <h4>
+          ${escapeHtml(
+            getDifficultyIcon(key)
+          )}
+          ${escapeHtml(
+            getDifficultyName(key)
+          )}
+          ${
+            summaryType === "recent"
+              ? "（最近记录）"
+              : ""
+          }
+        </h4>
+
+        <div class="stat">
+          <span>游戏次数</span>
+          <span>
+            ${formatNumber(item.count)}
+          </span>
+        </div>
+
+        <div class="stat">
+          <span>累计得分</span>
+          <span>
+            ${formatNumber(item.total_score)}
+          </span>
+        </div>
+
+        <div class="stat">
+          <span>平均得分</span>
+          <span>
+            ${formatAverage(item.avg_score)}
+          </span>
+        </div>
+
+        <div class="stat">
+          <span>最高得分</span>
+          <span>
+            ${formatNumber(item.max_score)}
+          </span>
+        </div>
+      </div>
+    `;
+  });
+
+  html += "</div>";
+
+  return html;
+}
+
 function renderStats(stats) {
   const totalRecords = stats.total_records;
   const totalScore = stats.total_score;
@@ -673,27 +941,27 @@ function renderStats(stats) {
 
   let html = "";
 
-  /*
-   * 数据更新时间
-   */
   html += `
     <div class="update-time">
-      数据更新时间：${escapeHtml(
+      数据更新时间：
+      ${escapeHtml(
         new Date().toLocaleString("zh-CN")
       )}
     </div>
   `;
 
   /*
-   * 总体统计
+   * 总体统计。
    */
   html += `
     <section class="stats-grid">
       <div class="stat-card">
         <h3>总游戏次数</h3>
+
         <div class="value">
           ${formatNumber(totalRecords)}
         </div>
+
         <div class="sub">
           所有模式累计完成局数
         </div>
@@ -701,9 +969,11 @@ function renderStats(stats) {
 
       <div class="stat-card">
         <h3>独立访问来源</h3>
+
         <div class="value">
           ${formatNumber(stats.unique_ips)}
         </div>
+
         <div class="sub">
           按后台记录的匿名访问来源统计
         </div>
@@ -711,9 +981,11 @@ function renderStats(stats) {
 
       <div class="stat-card">
         <h3>累计游戏得分</h3>
+
         <div class="value">
           ${formatNumber(totalScore)}
         </div>
+
         <div class="sub">
           所有游戏记录得分之和
         </div>
@@ -721,9 +993,11 @@ function renderStats(stats) {
 
       <div class="stat-card">
         <h3>平均每局得分</h3>
+
         <div class="value">
           ${formatAverage(averageScore)}
         </div>
+
         <div class="sub">
           累计得分 ÷ 总游戏次数
         </div>
@@ -732,40 +1006,52 @@ function renderStats(stats) {
   `;
 
   /*
-   * 各模式统计
+   * 游戏模式统计。
    */
   html += `
     <section class="section">
       <h2>各游戏模式统计</h2>
+
       <div class="mode-stats">
   `;
 
   MODE_KEYS.forEach(function(mode) {
     const item =
-      stats.by_mode[mode] || createEmptyModeStats();
+      stats.by_mode[mode] ||
+      createEmptyStats();
 
     html += `
       <div class="mode-card">
-        <h4>${escapeHtml(getModeName(mode))}</h4>
+        <h4>
+          ${escapeHtml(getModeName(mode))}
+        </h4>
 
         <div class="stat">
           <span>游戏次数</span>
-          <span>${formatNumber(item.count)}</span>
+          <span>
+            ${formatNumber(item.count)}
+          </span>
         </div>
 
         <div class="stat">
           <span>累计得分</span>
-          <span>${formatNumber(item.total_score)}</span>
+          <span>
+            ${formatNumber(item.total_score)}
+          </span>
         </div>
 
         <div class="stat">
           <span>平均得分</span>
-          <span>${formatAverage(item.avg_score)}</span>
+          <span>
+            ${formatAverage(item.avg_score)}
+          </span>
         </div>
 
         <div class="stat">
           <span>最高得分</span>
-          <span>${formatNumber(item.max_score)}</span>
+          <span>
+            ${formatNumber(item.max_score)}
+          </span>
         </div>
       </div>
     `;
@@ -777,7 +1063,62 @@ function renderStats(stats) {
   `;
 
   /*
-   * 最近游戏记录
+   * 难度统计。
+   */
+  html += `
+    <section class="section">
+      <h2>游戏难度统计</h2>
+  `;
+
+  if (stats.has_difficulty_summary) {
+    html += `
+      <p class="section-note">
+        以下数据由统计接口按难度汇总。
+      </p>
+    `;
+
+    html += renderDifficultyCards(
+      stats.by_difficulty,
+      "full"
+    );
+  } else {
+    const recentDifficulty =
+      calculateRecentDifficultyStats(
+        stats.recent
+      );
+
+    const recordedCount =
+      recentDifficulty.beginner.count +
+      recentDifficulty.intermediate.count +
+      recentDifficulty.challenge.count;
+
+    if (recordedCount > 0) {
+      html += `
+        <p class="section-note">
+          当前统计接口尚未返回完整难度汇总，
+          以下数据仅根据最近游戏记录计算。
+        </p>
+      `;
+
+      html += renderDifficultyCards(
+        recentDifficulty,
+        "recent"
+      );
+    } else {
+      html += `
+        <div class="compatibility-note">
+          当前后台接口尚未返回游戏难度数据。
+          旧版记录及未保存难度的记录会显示为“未记录”。
+          这不会影响现有游戏次数、得分和模式统计。
+        </div>
+      `;
+    }
+  }
+
+  html += "</section>";
+
+  /*
+   * 最近游戏记录。
    */
   html += `
     <section class="section">
@@ -799,6 +1140,7 @@ function renderStats(stats) {
               <th>完成时间</th>
               <th>访问来源</th>
               <th>游戏模式</th>
+              <th>难度</th>
               <th>本局得分</th>
               <th>已解锁药材</th>
               <th>最高连击</th>
@@ -808,41 +1150,88 @@ function renderStats(stats) {
           <tbody>
     `;
 
-    stats.recent.slice(0, 50).forEach(function(record) {
-      const mode = String(record.game_mode || "");
-      const modeName = getModeName(mode);
-      const badgeClass = getModeBadgeClass(mode);
+    stats.recent
+      .slice(0, 50)
+      .forEach(function(record) {
+        const mode = String(
+          record.game_mode || ""
+        );
 
-      html += `
-        <tr>
-          <td>
-            ${escapeHtml(formatDate(record.created_at))}
-          </td>
+        const modeName =
+          getModeName(mode);
 
-          <td title="访问来源已脱敏">
-            ${escapeHtml(maskIp(record.ip_address))}
-          </td>
+        const modeBadgeClass =
+          getModeBadgeClass(mode);
 
-          <td>
-            <span class="badge ${escapeHtml(badgeClass)}">
-              ${escapeHtml(modeName)}
-            </span>
-          </td>
+        const rawDifficulty =
+          record.difficulty ||
+          record.difficulty_name ||
+          "";
 
-          <td>
-            ${formatNumber(record.score)}
-          </td>
+        const difficultyName =
+          getDifficultyName(rawDifficulty);
 
-          <td>
-            ${formatNumber(record.unlocked_count)}
-          </td>
+        const difficultyIcon =
+          getDifficultyIcon(rawDifficulty);
 
-          <td>
-            ${formatNumber(record.combo_max)}
-          </td>
-        </tr>
-      `;
-    });
+        const difficultyBadgeClass =
+          getDifficultyBadgeClass(
+            rawDifficulty
+          );
+
+        html += `
+          <tr>
+            <td>
+              ${escapeHtml(
+                formatDate(record.created_at)
+              )}
+            </td>
+
+            <td title="访问来源已脱敏">
+              ${escapeHtml(
+                maskIp(record.ip_address)
+              )}
+            </td>
+
+            <td>
+              <span
+                class="badge ${escapeHtml(
+                  modeBadgeClass
+                )}"
+              >
+                ${escapeHtml(modeName)}
+              </span>
+            </td>
+
+            <td>
+              <span
+                class="badge ${escapeHtml(
+                  difficultyBadgeClass
+                )}"
+              >
+                ${escapeHtml(difficultyIcon)}
+                ${escapeHtml(difficultyName)}
+              </span>
+            </td>
+
+            <td>
+              ${formatNumber(record.score)}
+            </td>
+
+            <td>
+              ${formatNumber(
+                record.unlocked_count
+              )}
+            </td>
+
+            <td>
+              ${formatNumber(
+                record.combo_max
+              )}
+            </td>
+          </tr>
+        `;
+      });
 
     html += `
           </tbody>
@@ -853,7 +1242,7 @@ function renderStats(stats) {
 
   html += `
       <div class="privacy-notice">
-        为保护使用者隐私，本页面不展示完整 IP 地址，
+        为保护使用者隐私，本页面不展示完整IP地址，
         访问来源仅以脱敏形式显示。统计数据主要用于了解游戏平台
         的运行情况和优化游戏功能，不用于识别或评价个人。
       </div>
@@ -863,18 +1252,20 @@ function renderStats(stats) {
   getElement("content").innerHTML = html;
 }
 
-/*
- * 刷新按钮
- */
 getElement("refresh-button").addEventListener(
   "click",
   loadStats
 );
 
-/*
- * 页面打开后自动加载数据
- */
 loadStats();
 </script>
+
+<script
+  type="module"
+  src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495"
+  integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg=="
+  data-cf-beacon='{"version":"2024.11.0","token":"da6a41f784d647c2a7d9a76e1661d40b","r":1,"spa":2}'
+  crossorigin="anonymous"
+></script>
 </body>
 </html>
